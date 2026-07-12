@@ -207,6 +207,10 @@
     <span>Diseñado y construido a mano</span>
   </footer>
 
+  <!-- GSAP + ScrollTrigger (CDN, versión fijada). Los defer se ejecutan en orden:
+       si el CDN falla, main.js lo detecta y la página queda estática pero completa. -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
   <script src="js/main.js" defer></script>
 
 </body>

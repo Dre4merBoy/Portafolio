@@ -339,13 +339,10 @@ footer {
   color: var(--gray);
 }
 
-/* ---------- Reveal on scroll (placeholder; GSAP llega en Fase 4) ---------- */
-.reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity var(--dur-reveal) ease, transform var(--dur-reveal) ease;
-}
-.reveal.in { opacity: 1; transform: none; }
+/* ---------- Reveal on scroll ----------
+   Progressive enhancement: el CSS NO oculta contenido. Los estados iniciales
+   (opacity 0, y+24) los pone GSAP en js/main.js justo antes de animar.
+   Si GSAP no carga, la página se ve completa, solo sin animaciones. */
 
 /* ---------- Responsive (breakpoint 720px) ---------- */
 @media (max-width: 720px) {
@@ -364,7 +361,6 @@ footer {
 /* ---------- Accesibilidad: reduce motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .reveal { opacity: 1; transform: none; transition: none; }
   .status .dot { animation: none; }
   .project:hover .thumb { transform: none; }
 }
