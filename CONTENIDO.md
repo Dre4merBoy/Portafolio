@@ -19,7 +19,7 @@
 > desde el código hasta el rendimiento.
 
 ## 03 · Skills
-- **Desarrollo web:** HTML5, CSS3, JavaScript (vanilla), Node.js (HTTP nativo), diseño responsive / mobile-first
+- **Desarrollo web:** HTML5, CSS3, JavaScript (vanilla), Node.js (HTTP nativo), diseño responsive / mobile-first, diseño UX/UI (proceso documentado en DESIGN.md de este portafolio)
 - **Backend & datos:** Supabase, PostgreSQL, Row Level Security, autenticación, realtime
 - **Herramientas:** Git, Vercel, Google Fonts
 - **Seguridad web:** CSP, HSTS, rate limiting, moderación de contenido

@@ -82,6 +82,7 @@ section {
   grid-template-columns: 90px 1fr;
   border-bottom: 1px solid var(--line);
   min-height: 60vh;
+  scroll-margin-top: 80px; /* el nav fijo mide ~75px en escritorio; sin esto tapa el inicio de la sección al navegar por anchor */
 }
 .index {
   border-right: 1px solid var(--line);
@@ -96,8 +97,10 @@ section {
 .content { padding: var(--space-20) var(--space-10); }
 
 /* ---------- Hero ---------- */
-.hero { min-height: 100vh; align-items: end; }
-.hero .content { padding-bottom: var(--space-16); }
+/* align-self solo en .content: si se usara align-items en la sección,
+   la celda del índice colapsaría y su borde no recorrería todo el hero */
+.hero { min-height: 100vh; }
+.hero .content { align-self: end; padding-bottom: var(--space-16); }
 .eyebrow {
   font-size: 12px;
   letter-spacing: 2px;
@@ -181,6 +184,7 @@ h2 {
 }
 .tags { display: flex; flex-wrap: wrap; gap: 10px; }
 .tag {
+  position: relative; /* ancla del tooltip */
   font-size: 13px;
   border: 1px solid var(--ink);
   border-radius: 999px;
@@ -189,6 +193,32 @@ h2 {
   cursor: default;
 }
 .tag:hover { background: var(--ink); color: var(--paper); }
+
+/* Tooltip 100% CSS: el texto vive en data-tip y lo pinta ::after.
+   Sin JS; en pantallas táctiles (sin hover) simplemente no aparece. */
+.tag[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  width: max-content;
+  max-width: 240px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 12px;
+  line-height: 1.45;
+  padding: 8px 12px;
+  border-radius: 2px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none; /* que el tooltip no robe el hover */
+  transition: opacity var(--dur-micro) ease 0.15s; /* pequeño delay: no parpadea al barrer el puntero */
+  z-index: 5;
+}
+.tag[data-tip]:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
 
 /* ---------- Proyectos ---------- */
 .projects { display: grid; gap: var(--space-12); max-width: 1000px; }
@@ -303,7 +333,8 @@ footer {
   display: flex;
   justify-content: space-between;
   gap: var(--space-4);
-  padding: var(--space-6) var(--space-10);
+  /* izquierda = riel (90px) + padding de contenido (40px): alinea con el texto de las secciones */
+  padding: var(--space-6) var(--space-10) var(--space-6) 130px;
   font-size: 12px;
   color: var(--gray);
 }
@@ -324,6 +355,10 @@ footer {
   .skill-row { grid-template-columns: 1fr; gap: 10px; }
   nav ul { gap: 16px; }
   nav { padding: 16px 20px; }
+  /* En móvil solo los destinos esenciales; el scroll recorre el resto */
+  .nav-secondary { display: none; }
+  /* izquierda = riel (48px) + padding de contenido (20px) */
+  footer { padding: 16px 20px 16px 68px; }
 }
 
 /* ---------- Accesibilidad: reduce motion ---------- */

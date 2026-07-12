@@ -51,7 +51,7 @@ Reglas responsive comunes (breakpoint **720px**):
 - Todos los grids de 2 columnas colapsan a **1 columna**.
 
 Por sección:
-- **01 Hero** — contenido anclado al borde inferior (`align-items:end`), alto `100vh`. H1 escala con `clamp`. *Decisión abierta:* 5 links de nav a 375px pueden apretar → evaluar menú hamburguesa en Fase 3.
+- **01 Hero** — contenido anclado al borde inferior (`align-self:end` en `.content`, no `align-items` en la sección, para que el riel del índice conserve su altura), alto `100vh`. H1 escala con `clamp`. *Nav móvil:* resuelto en Fase 3 — solo 3 links esenciales en ≤720px (ver Pendientes).
 - **02 Sobre mí** — grid narrativa | ficha → apilado.
 - **03 Skills** — fila categoría | tags → categoría encima de tags (wrap).
 - **04 Proyectos** — proyecto captura | texto → captura arriba (ratio 16:10).
@@ -145,4 +145,4 @@ Se **desactiva** todo el movimiento: reveals (contenido visible de inmediato, si
 - **Datos de contacto:** email y LinkedIn reales (hoy placeholder). GitHub: `github.com/Dre4merBoy`.
 - **Portal N:** URL de la demo, stack y descripción final — los aporta Luis. No inventar.
 - **Capturas** de proyectos (para thumbnails), a convertir a WebP en Fase 5.
-- **Decisión abierta:** menú de navegación en móvil (5 links inline vs. hamburguesa) → resolver en Fase 3.
+- **Decisión abierta:** menú de navegación en móvil (5 links inline vs. hamburguesa) → **RESUELTA (Fase 3):** en móvil (≤720px) se muestran solo los 3 destinos esenciales — Skills, Proyectos, Contacto (`.nav-secondary` oculto por CSS, sin JS). A 375px los 5 links dejaban solo 8px entre logo y menú; recortar es coherente con el minimalismo suizo y en una one-page el scroll recorre todo.
