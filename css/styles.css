@@ -1,22 +1,34 @@
 /* =====================================================================
    Portafolio — Luis Contreras
-   Estilo minimalista / Suizo (Estilo Tipográfico Internacional).
-   Sistema de diseño según DESIGN.md. Un solo acento (rojo).
+   Base suiza (retícula + tipografía) con dirección Off-White × Juice WRLD:
+   hero nocturno atmosférico → cuerpo claro de galería. Acento violeta (999).
    ===================================================================== */
 
 /* ---------- Tokens ---------- */
 :root {
-  /* Color */
+  /* Color — cuerpo claro */
   --paper: #FAFAF8;
   --ink: #111110;
   --ink-soft: #444440;
   --gray: #8A8A85;
   --line: #E4E3DD;
-  --accent: #E63312;
+
+  /* Acento violeta (Juice WRLD). accent = texto/enlaces sobre claro (AA);
+     accent-bright y pink = glows y acentos sobre el hero oscuro. */
+  --accent: #6D28D9;
+  --accent-bright: #8B5CF6;
+  --pink: #DB2777;
+
+  /* Color — hero nocturno */
+  --night: #0C0A16;
+  --night-soft: #17132A;
+  --night-ink: #F5F3FF;      /* titulares sobre noche */
+  --night-ink-soft: #A79FC5; /* párrafos sobre noche */
 
   /* Tipografía */
   --display: 'Space Grotesk', sans-serif;
   --body: 'Inter', sans-serif;
+  --mono: 'Space Grotesk', ui-monospace, monospace; /* etiquetas industriales */
 
   /* Espaciado (base 4/8) */
   --space-1: 4px;
@@ -38,15 +50,46 @@
 
 /* ---------- Reset ---------- */
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+/* overflow-x: clip también aquí (además de en body): garantiza que nada
+   —marquee, glows del hero— genere scroll horizontal. clip no crea
+   contenedor de scroll, así que el sticky de los numerales sigue vivo. */
+html { scroll-behavior: smooth; overflow-x: clip; }
 body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--body);
   font-size: 16px;
   line-height: 1.6;
+  /* nada genera scroll horizontal (p. ej. tooltips absolutos cerca del borde);
+     clip recorta sin crear contenedor de scroll, así no rompe los sticky */
+  overflow-x: clip;
 }
 ::selection { background: var(--accent); color: var(--paper); }
+
+/* ---------- Fondo dinámico ----------
+   Capa fija tras todo el contenido. Un halo violeta muy tenue sigue al
+   cursor vía --mx/--my (JS los actualiza); sobre el cuerpo claro es sutil,
+   solo "respira". El grano da textura de impresión. Ambos pointer-events:none. */
+.bg-fx {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    600px circle at var(--mx, 50%) var(--my, 40%),
+    color-mix(in srgb, var(--accent-bright) 8%, transparent),
+    transparent 65%
+  );
+  transition: background-position 0.3s ease;
+}
+.bg-fx::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* ruido SVG (feTurbulence) como textura de grano; se repite en mosaico */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.035;
+}
 
 /* ---------- Nav ---------- */
 nav {
@@ -75,6 +118,34 @@ nav a {
   transition: color var(--dur-micro);
 }
 nav a:hover, nav a:focus-visible { color: var(--accent); }
+nav a.active { color: var(--accent); } /* sección visible (lo marca ScrollTrigger) */
+
+/* Sobre el hero oscuro: nav transparente y tipografía clara (lo activa GSAP).
+   La transición hace que el cambio no sea brusco al cruzar el umbral. */
+nav {
+  transition: background var(--dur-lift) ease, border-color var(--dur-lift) ease;
+}
+nav.over-hero {
+  background: transparent;
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+nav.over-hero .logo { color: var(--night-ink); }
+nav.over-hero a { color: var(--night-ink-soft); }
+nav.over-hero a:hover,
+nav.over-hero a:focus-visible,
+nav.over-hero a.active { color: var(--night-ink); }
+
+/* Barra de progreso de lectura: GSAP la escala de 0 a 1 con el scroll */
+.nav-progress {
+  position: absolute;
+  left: 0;
+  bottom: -1px; /* pisa el border-bottom del nav */
+  width: 100%;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+}
 
 /* ---------- Layout con riel de índice ---------- */
 section {
@@ -90,22 +161,82 @@ section {
   display: flex;
   justify-content: center;
   font-family: var(--display);
-  font-size: 13px;
-  color: var(--gray);
-  letter-spacing: 1px;
 }
-.content { padding: var(--space-20) var(--space-10); }
+/* Numeral editorial: grande, tenue y sticky — acompaña el scroll de su sección */
+.index span {
+  position: sticky;
+  top: 96px;
+  align-self: flex-start; /* sin esto, sticky no funciona en un hijo de flex estirado */
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--line);
+}
+.content {
+  padding: var(--space-20) var(--space-10);
+  /* los items de grid no se encogen por debajo de su contenido (min-width:auto);
+     sin esto, contenido ancho (p. ej. el marquee) desbordaría toda la página */
+  min-width: 0;
+}
 
-/* ---------- Hero ---------- */
-/* align-self solo en .content: si se usara align-items en la sección,
-   la celda del índice colapsaría y su borde no recorrería todo el hero */
-.hero { min-height: 100vh; }
+/* ---------- Hero nocturno ----------
+   align-self solo en .content: si se usara align-items en la sección,
+   la celda del índice colapsaría y su borde no recorrería todo el hero.
+   isolation: crea contexto de apilado para que los glows (z-index:-1)
+   queden tras el contenido pero delante del fondo global. */
+.hero {
+  min-height: 100vh;
+  position: relative;
+  isolation: isolate;
+  overflow: clip; /* confina el "999" y los glows al hero, sin romper el sticky del índice */
+  background: var(--night);
+  color: var(--night-ink);
+  border-bottom: none;
+}
+/* Glows violeta/rosa: el primero sigue al cursor (--mx/--my) */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(650px circle at var(--mx, 50%) var(--my, 35%),
+      color-mix(in srgb, var(--accent-bright) 32%, transparent), transparent 60%),
+    radial-gradient(800px circle at 85% 10%,
+      color-mix(in srgb, var(--pink) 16%, transparent), transparent 55%),
+    radial-gradient(700px circle at 10% 90%,
+      color-mix(in srgb, var(--accent) 22%, transparent), transparent 55%);
+}
+/* Grano + desvanecido al papel en el borde inferior (transición al cuerpo claro) */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom, transparent 82%, var(--paper) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+}
+/* Canvas del planeta 3D: tras el contenido (z-index -1), sobre el color sólido */
+.hero-planet {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  display: block;
+  pointer-events: none;
+}
+.hero .index { border-right-color: rgba(255, 255, 255, 0.08); }
+.hero .index span { color: rgba(255, 255, 255, 0.09); }
 .hero .content { align-self: end; padding-bottom: var(--space-16); }
-.eyebrow {
+/* .hero .eyebrow (no solo .eyebrow): así gana a la regla .hero p */
+.hero .eyebrow {
   font-size: 12px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--gray);
+  color: var(--accent-bright);
   margin-bottom: var(--space-6);
 }
 h1 {
@@ -114,12 +245,13 @@ h1 {
   font-size: clamp(64px, 14vw, 160px);
   line-height: 0.92;
   letter-spacing: -0.04em;
+  color: var(--night-ink);
 }
-h1 .accent { color: var(--accent); }
+h1 .accent { color: var(--accent-bright); }
 .hero p {
   max-width: 420px;
   margin-top: 28px;
-  color: var(--gray);
+  color: var(--night-ink-soft);
   font-size: 17px;
 }
 .status {
@@ -129,14 +261,44 @@ h1 .accent { color: var(--accent); }
   margin-top: 28px;
   font-size: 13px;
   font-weight: 500;
+  color: var(--night-ink);
 }
 .status .dot {
   width: 8px; height: 8px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--accent-bright);
+  box-shadow: 0 0 12px 2px color-mix(in srgb, var(--accent-bright) 70%, transparent);
   animation: pulse 2s infinite;
 }
 @keyframes pulse { 50% { opacity: 0.3; } }
+
+/* Marca "999" (motivo Juice WRLD): filigrana enorme en una esquina del hero */
+.hero-999 {
+  position: absolute;
+  top: 14vh;
+  left: 4vw; /* a la izquierda: el planeta 3D vive a la derecha */
+  z-index: -1;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(120px, 22vw, 320px);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.06);
+  pointer-events: none;
+  user-select: none;
+}
+/* Etiqueta industrial (Off-White): meta-texto monoespaciado entre comillas */
+.hero-meta {
+  position: absolute;
+  top: calc(var(--space-20) + 20px);
+  right: var(--space-10);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--night-ink-soft);
+}
 
 /* ---------- Headings de sección ---------- */
 h2 {
@@ -150,11 +312,63 @@ h2 {
 /* ---------- Sobre mí ---------- */
 .about-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 300px) 1fr;
   gap: var(--space-12);
-  max-width: 900px;
+  max-width: 1000px;
+  align-items: start;
 }
+.about-body { min-width: 0; }
+.about-body .fact-list { margin-top: var(--space-8); }
+
+/* Foto editorial: retrato en 4:5, tratamiento sutil, tinte violeta de respaldo */
+.about-photo {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: linear-gradient(160deg, #1a1030, var(--accent));
+}
+.about-photo::after { /* placeholder si la foto aún no existe (img se autoelimina) */
+  content: 'LC';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 72px;
+  color: rgba(255, 255, 255, 0.16);
+  z-index: 0;
+}
+.about-photo img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: grayscale(0.2) contrast(1.03);
+  transition: filter var(--dur-lift) ease;
+}
+.about-photo:hover img { filter: grayscale(0) contrast(1.06) saturate(1.05); }
+
+/* ---------- Tilt 3D (proyectos, foto) ----------
+   JS pone --rx/--ry al mover el cursor (gateado por hover, no por
+   reduced-motion: inclinar con el puntero es feedback, no ruido). */
+[data-tilt] {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform-style: preserve-3d;
+  transition: transform var(--dur-lift) ease;
+  will-change: transform;
+}
+[data-tilt]:hover { transition-duration: 0.12s; }
 .about-grid p { color: var(--ink-soft); }
+/* Bandera a la izquierda (ragged right): el estándar del estilo suizo.
+   En columnas estrechas el justificado abría "ríos" de espacio. */
+.about-grid p, .project .desc, .step p {
+  text-align: left;
+  text-wrap: pretty; /* evita viudas/huérfanas en las últimas líneas */
+}
 .about-grid p + p { margin-top: var(--space-4); }
 .fact-list { list-style: none; border-top: 1px solid var(--line); }
 .fact-list li {
@@ -167,103 +381,245 @@ h2 {
 }
 .fact-list .label { color: var(--gray); }
 
-/* ---------- Skills ---------- */
-.skill-group { max-width: 900px; }
-.skill-row {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: var(--space-6);
-  padding: var(--space-6) 0;
-  border-bottom: 1px solid var(--line);
-}
-.skill-row:first-of-type { border-top: 1px solid var(--line); }
-.skill-row h3 {
+/* ---------- Skills: rejilla de tarjetas con logos + hover 3D ---------- */
+.skill-group { max-width: 1000px; display: grid; gap: var(--space-10); }
+
+/* Etiqueta de categoría (brutalista: mono, mayúsculas, número en acento) */
+.skill-cat {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
   font-family: var(--display);
-  font-size: 15px;
-  font-weight: 500;
-}
-.tags { display: flex; flex-wrap: wrap; gap: 10px; }
-.tag {
-  position: relative; /* ancla del tooltip */
   font-size: 13px;
-  border: 1px solid var(--ink);
-  border-radius: 999px;
-  padding: 6px 16px;
-  transition: background var(--dur-micro), color var(--dur-micro);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--ink);
+}
+.skill-cat-num { font-size: 12px; font-weight: 700; color: var(--accent); }
+
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 12px;
+  perspective: 900px; /* da profundidad al pop 3D de las tarjetas */
+}
+.tech {
+  position: relative; /* ancla del tooltip */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 12px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  transform-style: preserve-3d;
+  transition: transform var(--dur-lift) ease, box-shadow var(--dur-lift) ease,
+    border-color var(--dur-micro), background var(--dur-micro);
   cursor: default;
 }
-.tag:hover { background: var(--ink); color: var(--paper); }
+/* Hover 3D: la tarjeta se inclina y el logo salta hacia el usuario (translateZ) */
+.tech:hover {
+  transform: translateY(-6px) rotateX(7deg);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent-bright) 6%, var(--paper));
+  box-shadow: 0 24px 46px -18px color-mix(in srgb, var(--accent-bright) 60%, transparent);
+  z-index: 2;
+}
+.tech-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: grayscale(0.15);
+  transition: transform var(--dur-lift) ease, filter var(--dur-micro);
+}
+.tech:hover .tech-logo { transform: translateZ(28px) scale(1.08); filter: grayscale(0); }
+.tech-name {
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.2;
+  transition: transform var(--dur-lift) ease;
+}
+.tech:hover .tech-name { transform: translateZ(14px); }
+/* Tarjetas de concepto (sin logo de marca): icono de línea por categoría */
+.tech-glyph {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+}
+.icon-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+.tech-ic {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke var(--dur-micro), transform var(--dur-lift) ease;
+}
+.tech:hover .tech-ic { stroke: var(--accent-bright); transform: translateZ(28px) scale(1.1); }
 
-/* Tooltip 100% CSS: el texto vive en data-tip y lo pinta ::after.
-   Sin JS; en pantallas táctiles (sin hover) simplemente no aparece. */
-.tag[data-tip]::after {
+/* Tooltip 100% CSS: el texto vive en data-tip y lo pinta ::after. */
+.tech[data-tip]::after {
   content: attr(data-tip);
   position: absolute;
   bottom: calc(100% + 8px);
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: max-content;
-  max-width: 240px;
+  max-width: min(240px, 70vw);
   background: var(--ink);
   color: var(--paper);
   font-size: 12px;
   line-height: 1.45;
   padding: 8px 12px;
-  border-radius: 2px;
   opacity: 0;
   visibility: hidden;
-  pointer-events: none; /* que el tooltip no robe el hover */
-  transition: opacity var(--dur-micro) ease 0.15s; /* pequeño delay: no parpadea al barrer el puntero */
+  pointer-events: none;
+  transition: opacity var(--dur-micro) ease 0.15s;
   z-index: 5;
 }
-.tag[data-tip]:hover::after {
-  opacity: 1;
-  visibility: visible;
-}
+.tech[data-tip]:hover::after { opacity: 1; visibility: visible; }
 
-/* ---------- Proyectos ---------- */
-.projects { display: grid; gap: var(--space-12); max-width: 1000px; }
-.project {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-10);
+/* ---------- Proyectos: galería horizontal 3D ---------- */
+.proj-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.proj-head h2 { margin-bottom: 0; }
+.proj-hint {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: inline-flex;
   align-items: center;
+  gap: 8px;
+}
+.proj-hint .arrow { display: inline-block; animation: nudge 1.4s ease-in-out infinite; }
+@keyframes nudge { 50% { transform: translateX(6px); } }
+
+.proj-gallery {
+  display: flex;
+  gap: var(--space-8);
+  overflow-x: auto;
+  overflow-y: visible; /* que el glow/tilt no se recorte (gotcha carruseles) */
+  scroll-snap-type: x mandatory;
+  padding: var(--space-8) 0 var(--space-10);
+  margin-top: var(--space-8);
+  scrollbar-width: none;
+  cursor: grab;
+}
+.proj-gallery::-webkit-scrollbar { display: none; }
+.proj-gallery.is-dragging { cursor: grabbing; scroll-snap-type: none; }
+/* durante el arrastre no aplicamos el tilt del cursor (evita jitter) */
+.proj-gallery.is-dragging .proj-panel { transform: none; }
+
+.proj-panel {
+  position: relative;
+  flex: 0 0 min(82vw, 560px);
+  scroll-snap-align: center;
+  display: flex;
+  flex-direction: column;
   text-decoration: none;
   color: inherit;
-}
-.project .thumb {
-  aspect-ratio: 16 / 10;
-  transition: transform var(--dur-lift) ease;
+  border: 1px solid var(--line);
+  background: var(--paper);
   overflow: hidden;
+  transform-style: preserve-3d;
+  transition: box-shadow var(--dur-lift) ease, border-color var(--dur-micro);
 }
-.project .thumb img {
+.proj-panel:hover {
+  border-color: var(--accent);
+  box-shadow: 0 34px 64px -26px color-mix(in srgb, var(--accent-bright) 60%, transparent);
+}
+.proj-num {
+  position: absolute;
+  top: 12px;
+  left: 18px;
+  z-index: 3;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 42px;
+  line-height: 1;
+  color: #fff;
+  mix-blend-mode: difference; /* legible sobre cualquier zona de la imagen */
+}
+.proj-media {
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--night);
+}
+.proj-media img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* llena el 16:10 sin deformar (la captura ya es 1280×800) */
+  object-fit: cover;
   display: block;
+  transition: transform var(--dur-lift) ease;
 }
-.project:hover .thumb { transform: translateY(-6px); }
-/* Fondos de respaldo mientras la captura carga (o si falla) */
-.thumb-cj { background: var(--ink); }
-.thumb-pn { background: var(--accent); }
-.project h3 {
-  font-family: var(--display);
-  font-size: 26px;
-  font-weight: 500;
-  margin-bottom: 10px;
+.proj-panel:hover .proj-media img { transform: scale(1.06); }
+.proj-info {
+  padding: 22px 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
-.project .desc { color: var(--gray); font-size: 15px; }
-.project .stack {
-  margin-top: var(--space-4);
-  font-size: 12px;
-  letter-spacing: 1.5px;
+.proj-title { font-family: var(--display); font-size: clamp(22px, 3vw, 30px); font-weight: 500; }
+.proj-desc { color: var(--gray); font-size: 14px; }
+.proj-stack { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.proj-stack li {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--gray);
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  padding: 4px 10px;
 }
-.project .link {
-  margin-top: 18px;
+.proj-cta {
+  margin-top: 8px;
   font-size: 14px;
   font-weight: 500;
   color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.proj-cta .arrow { display: inline-block; transition: transform var(--dur-micro) ease; }
+.proj-panel:hover .proj-cta .arrow { transform: translateX(6px); }
+
+/* Panel final: CTA oscuro a GitHub */
+.proj-panel--more {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: var(--night);
+  color: var(--night-ink);
+  border-color: transparent;
+}
+.proj-panel--more .proj-desc { color: var(--night-ink-soft); max-width: 32ch; }
+.proj-more-inner {
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+.proj-panel--more .proj-num {
+  position: static;
+  color: var(--accent-bright);
+  mix-blend-mode: normal;
+  font-size: 56px;
 }
 
 /* ---------- Proceso ---------- */
@@ -307,25 +663,63 @@ h2 {
   flex-direction: column;
   gap: var(--space-8);
 }
-.big-link {
-  font-family: var(--display);
-  font-size: clamp(36px, 7vw, 80px);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  text-decoration: none;
-  color: var(--ink);
-  transition: color var(--dur-micro);
-  width: fit-content;
-}
-.big-link .accent { color: var(--accent); }
-.big-link:hover, .big-link:focus-visible { color: var(--accent); }
 .social {
   display: flex;
   gap: 28px;
   font-size: 14px;
 }
-.social a { color: var(--gray); text-decoration: none; transition: color var(--dur-micro); }
-.social a:hover, .social a:focus-visible { color: var(--ink); }
+.social a {
+  color: var(--gray);
+  text-decoration: none;
+  /* subrayado animado: un gradiente de 0 de ancho que crece al hover */
+  background: linear-gradient(currentColor, currentColor) left bottom / 0 1px no-repeat;
+  padding-bottom: 2px;
+  transition: color var(--dur-micro), background-size var(--dur-micro) ease;
+}
+.social a:hover, .social a:focus-visible {
+  color: var(--ink);
+  background-size: 100% 1px;
+}
+
+/* ---------- Marquee (Contacto): la cinta ES el mailto ---------- */
+.marquee {
+  display: block;
+  overflow: hidden;
+  min-width: 0; /* mismo motivo: como flex item, que pueda encogerse */
+  /* sangra hasta los bordes del área de contenido */
+  margin: 0 calc(-1 * var(--space-10));
+  text-decoration: none;
+  cursor: pointer;
+}
+/* Al pasar el cursor (o enfocar con teclado): la cinta se pausa y se
+   rellena de acento — señal inequívoca de que es accionable */
+.marquee:hover .marquee-track,
+.marquee:focus-visible .marquee-track {
+  animation-play-state: paused;
+}
+.marquee:hover .marquee-track span,
+.marquee:focus-visible .marquee-track span {
+  color: var(--accent);
+  -webkit-text-stroke: 1px var(--accent);
+}
+.marquee-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marquee 36s linear infinite;
+}
+.marquee-track span {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(48px, 8vw, 110px);
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--gray); /* texto en contorno, editorial */
+  transition: color var(--dur-micro), -webkit-text-stroke var(--dur-micro);
+}
+/* dos spans idénticos: al llegar a -50% el segundo ocupa el lugar del primero */
+@keyframes marquee { to { transform: translateX(-50%); } }
 
 /* ---------- Footer ---------- */
 footer {
@@ -347,19 +741,29 @@ footer {
 @media (max-width: 720px) {
   section { grid-template-columns: 48px 1fr; }
   .content { padding: 56px 20px; }
-  .about-grid, .project, .process-grid { grid-template-columns: 1fr; }
-  .skill-row { grid-template-columns: 1fr; gap: 10px; }
+  .about-grid, .process-grid { grid-template-columns: 1fr; }
+  .proj-panel { flex-basis: 86vw; }
+  .tech-grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
   nav ul { gap: 16px; }
   nav { padding: 16px 20px; }
   /* En móvil solo los destinos esenciales; el scroll recorre el resto */
   .nav-secondary { display: none; }
   /* izquierda = riel (48px) + padding de contenido (20px) */
   footer { padding: 16px 20px 16px 68px; }
+  .index span { font-size: 26px; top: 72px; }
+  .marquee { margin: 0 -20px; }
+  /* En móvil el meta industrial estorba junto al nav; el 999 se ancla más arriba */
+  .hero-meta { display: none; }
+  .hero-999 { top: 9vh; left: 6vw; }
+  .about-photo { max-width: 280px; }
 }
 
-/* ---------- Accesibilidad: reduce motion ---------- */
+/* ---------- Accesibilidad: reduce motion ----------
+   Solo se desactiva lo GENUINAMENTE intrusivo (bucles infinitos, scroll
+   suave). Hover, tilt, reveals, marquee y el planeta son feedback funcional
+   y SIGUEN corriendo: en Windows la preferencia viene activada a menudo y
+   apagarlo todo dejaba la página "muerta". */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .status .dot { animation: none; }
-  .project:hover .thumb { transform: none; }
 }

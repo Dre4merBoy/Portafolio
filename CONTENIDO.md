@@ -8,15 +8,17 @@
 ## 01 · Hero
 - **Nombre:** Luis Edgar Contreras Juárez
 - **Título:** Desarrollador Web · Soporte TI y Redes
-- **Ubicación:** Monterrey, Nuevo León, México
+- **Ubicación:** San Nicolás de los Garza, Nuevo León, México (Hero); "Área metropolitana de Monterrey · MX" en la ficha de Sobre mí
 
 ## 02 · Sobre mí
-> Soy Luis Contreras, técnico en TI y desarrollador web con base en Monterrey. Durante los
-> últimos años combiné dos mundos: la infraestructura —servidores, redes y soporte técnico— y
-> el desarrollo front-end. Esa mezcla me dio una forma muy práctica de resolver problemas:
-> entiendo tanto lo que ocurre detrás del servidor como lo que ve el usuario en pantalla. Hoy
-> construyo sitios web rápidos, limpios y sin dependencias innecesarias, cuidando cada detalle
-> desde el código hasta el rendimiento.
+> Vengo de dos mundos: la infraestructura —servidores, redes y soporte técnico— y el
+> desarrollo front-end. Esa mezcla me dio una forma muy práctica de resolver problemas:
+> entiendo lo que ocurre detrás del servidor y lo que ve el usuario en pantalla. Hoy
+> construyo sitios limpios, sin dependencias innecesarias, cuidando cada detalle del código
+> al rendimiento.
+>
+> (Depurado en Fase 5-previa: se quitó la repetición del nombre —ya está en el H1—, del rol
+> —ya está en el Hero— y de "rápidos/web"; la ubicación vive en el Hero y en la ficha.)
 
 ## 03 · Skills
 - **Desarrollo web:** HTML5, CSS3, JavaScript (vanilla), Node.js (HTTP nativo), diseño responsive / mobile-first, diseño UX/UI (proceso documentado en DESIGN.md de este portafolio)

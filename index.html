@@ -20,6 +20,18 @@
 </head>
 <body>
 
+  <!-- Fondo dinámico: halo violeta que sigue al cursor + grano (decorativo) -->
+  <div class="bg-fx" aria-hidden="true"></div>
+
+  <!-- Sprite de iconos de línea (categorías de skills sin logo de marca) -->
+  <svg class="icon-sprite" aria-hidden="true" focusable="false" width="0" height="0">
+    <symbol id="ic-front" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="1.5"/><path d="M8 20h8"/></symbol>
+    <symbol id="ic-data" viewBox="0 0 24 24"><ellipse cx="12" cy="5.5" rx="7" ry="2.6"/><path d="M5 5.5v13c0 1.4 3.1 2.6 7 2.6s7-1.2 7-2.6v-13"/><path d="M5 12c0 1.4 3.1 2.6 7 2.6s7-1.2 7-2.6"/></symbol>
+    <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3 5 5.5V11c0 4.3 3 7.3 7 8.5 4-1.2 7-4.2 7-8.5V5.5Z"/></symbol>
+    <symbol id="ic-server" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="1.2"/><rect x="3" y="13" width="18" height="7" rx="1.2"/><path d="M7 7.5h.01M7 16.5h.01"/></symbol>
+    <symbol id="ic-spark" viewBox="0 0 24 24"><path d="M12 2 13.9 8.1 20 10 13.9 11.9 12 18 10.1 11.9 4 10Z"/></symbol>
+  </svg>
+
   <nav>
     <span class="logo">LC</span>
     <ul>
@@ -29,14 +41,18 @@
       <li class="nav-secondary"><a href="#proceso">Proceso</a></li>
       <li><a href="#contacto">Contacto</a></li>
     </ul>
+    <span class="nav-progress" aria-hidden="true"></span>
   </nav>
 
   <main>
     <!-- 01 · Hero -->
     <section class="hero">
-      <div class="index">01</div>
+      <canvas class="hero-planet" data-planet aria-hidden="true"></canvas>
+      <div class="index"><span>01</span></div>
+      <span class="hero-999" aria-hidden="true">999</span>
+      <span class="hero-meta" aria-hidden="true">"Portafolio" — MX ©2026</span>
       <div class="content">
-        <p class="eyebrow">Monterrey, Nuevo León · MX</p>
+        <p class="eyebrow">San Nicolás de los Garza, Nuevo León · MX</p>
         <h1>Luis<br />Contreras<span class="accent">.</span></h1>
         <p>Desarrollador web y soporte TI. Construyo sitios rápidos y seguros, del servidor a la interfaz.</p>
         <span class="status"><span class="dot"></span>Disponible para trabajar</span>
@@ -45,83 +61,88 @@
 
     <!-- 02 · Sobre mí -->
     <section id="sobre-mi">
-      <div class="index">02</div>
+      <div class="index"><span>02</span></div>
       <div class="content">
         <h2 class="reveal">Sobre mí</h2>
         <div class="about-grid">
-          <div class="reveal">
-            <p>Soy Luis Contreras, técnico en TI y desarrollador web con base en Monterrey. Durante los últimos años combiné dos mundos: la infraestructura —servidores, redes y soporte técnico— y el desarrollo front-end.</p>
-            <p>Esa mezcla me dio una forma muy práctica de resolver problemas: entiendo tanto lo que ocurre detrás del servidor como lo que ve el usuario en pantalla. Hoy construyo sitios web rápidos, limpios y sin dependencias innecesarias, cuidando cada detalle desde el código hasta el rendimiento.</p>
-          </div>
-          <ul class="fact-list reveal">
+          <figure class="about-photo reveal" data-tilt>
+            <img src="assets/luis.jpg" alt="Retrato de Luis Contreras" width="900" height="1120" loading="lazy" onerror="this.remove()" />
+          </figure>
+          <div class="about-body">
+            <div class="reveal">
+              <p>Vengo de dos mundos: la infraestructura —servidores, redes y soporte técnico— y el desarrollo front-end. Esa mezcla me dio una forma muy práctica de resolver problemas: entiendo lo que ocurre detrás del servidor y lo que ve el usuario en pantalla.</p>
+              <p>Hoy construyo sitios limpios, sin dependencias innecesarias, cuidando cada detalle del código al rendimiento.</p>
+            </div>
+            <ul class="fact-list reveal">
             <li><span class="label">Formación</span><span>Universidad Autónoma de Tamaulipas</span></li>
             <li><span class="label">Enfoque</span><span>Desarrollo web · TI y redes</span></li>
             <li><span class="label">Experiencia</span><span>Gestión + desarrollo</span></li>
-            <li><span class="label">Ubicación</span><span>Monterrey, NL · MX</span></li>
-          </ul>
+            <li><span class="label">Ubicación</span><span>Área metropolitana de Monterrey · MX</span></li>
+            </ul>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- 03 · Skills -->
     <section id="skills">
-      <div class="index">03</div>
+      <div class="index"><span>03</span></div>
       <div class="content">
         <h2 class="reveal">Skills</h2>
         <div class="skill-group">
-          <div class="skill-row reveal">
-            <h3>Frontend</h3>
-            <div class="tags">
-              <span class="tag" data-tip="Lenguaje de marcado que estructura el contenido de una página web.">HTML5</span>
-              <span class="tag" data-tip="Hojas de estilo: apariencia, layout, tipografía y animaciones del sitio.">CSS3</span>
-              <span class="tag" data-tip="Lenguaje de programación que da interactividad a la web en el navegador.">JavaScript</span>
-              <span class="tag" data-tip="Diseño que se adapta a cualquier pantalla, pensado primero para el móvil.">Responsive / Mobile-first</span>
-              <span class="tag" data-tip="Experiencia de usuario e interfaz: flujos claros, jerarquía y pantallas usables.">Diseño UX/UI</span>
+          <div class="skill-block reveal">
+            <h3 class="skill-cat"><span class="skill-cat-num">01</span> Frontend</h3>
+            <div class="tech-grid">
+              <div class="tech" data-tip="Lenguaje de marcado que estructura el contenido de una página web."><img class="tech-logo" src="assets/logos/html5.svg" alt="" width="40" height="40" loading="lazy" /><span class="tech-name">HTML5</span></div>
+              <div class="tech" data-tip="Hojas de estilo: apariencia, layout, tipografía y animaciones del sitio."><img class="tech-logo" src="assets/logos/css3.svg" alt="" width="40" height="40" loading="lazy" /><span class="tech-name">CSS3</span></div>
+              <div class="tech" data-tip="Lenguaje de programación que da interactividad a la web en el navegador."><img class="tech-logo" src="assets/logos/javascript.svg" alt="" width="40" height="40" loading="lazy" /><span class="tech-name">JavaScript</span></div>
+              <div class="tech tech--concept" data-tip="Diseño que se adapta a cualquier pantalla, pensado primero para el móvil."><span class="tech-glyph" aria-hidden="true"><svg class="tech-ic"><use href="#ic-front"/></svg></span><span class="tech-name">Responsive</span></div>
+              <div class="tech tech--concept" data-tip="Experiencia de usuario e interfaz: flujos claros, jerarquía y pantallas usables."><span class="tech-glyph" aria-hidden="true"><svg class="tech-ic"><use href="#ic-front"/></svg></span><span class="tech-name">Diseño UX/UI</span></div>
             </div>
           </div>
-          <div class="skill-row reveal">
-            <h3>Backend y datos</h3>
-            <div class="tags">
-              <span class="tag" data-tip="Entorno para ejecutar JavaScript en el servidor.">Node.js</span>
-              <span class="tag" data-tip="Backend como servicio: base de datos, autenticación y realtime sobre PostgreSQL.">Supabase</span>
-              <span class="tag" data-tip="Registro e inicio de sesión seguros de usuarios.">Auth</span>
-              <span class="tag" data-tip="Datos que se actualizan en vivo, sin recargar la página.">Realtime</span>
-              <span class="tag" data-tip="Almacenamiento y entrega de archivos e imágenes subidos por usuarios.">Storage</span>
-              <span class="tag" data-tip="Base de datos relacional de código abierto, robusta y estándar en la industria.">PostgreSQL</span>
-              <span class="tag" data-tip="Reglas en la propia base de datos que controlan qué filas puede ver o editar cada usuario.">Row Level Security</span>
+          <div class="skill-block reveal">
+            <h3 class="skill-cat"><span class="skill-cat-num">02</span> Backend y datos</h3>
+            <div class="tech-grid">
+              <div class="tech" data-tip="Entorno para ejecutar JavaScript en el servidor."><img class="tech-logo" src="assets/logos/nodedotjs.svg" alt="" width="40" height="40" loading="lazy" /><span class="tech-name">Node.js</span></div>
+              <div class="tech" data-tip="Backend como servicio: base de datos, autenticación y realtime sobre PostgreSQL."><img class="tech-logo" src="assets/logos/supabase.svg" alt="" width="40" height="40" loading="lazy" /><span class="tech-name">Supabase</span></div>
+              <div class="tech" data-tip="Base de datos relacional de código abierto, robusta y estándar en la industria."><img class="tech-logo" src="assets/logos/postgresql.svg" alt="" width="40" height="40" loading="lazy" /><span class="tech-name">PostgreSQL</span></div>
+              <div class="tech tech--concept" data-tip="Registro e inicio de sesión seguros de usuarios."><span class="tech-glyph" aria-hidden="true"><svg class="tech-ic"><use href="#ic-data"/></svg></span><span class="tech-name">Auth</span></div>
+              <div class="tech tech--concept" data-tip="Datos que se actualizan en vivo, sin recargar la página."><span class="tech-glyph" aria-hidden="true"><svg class="tech-ic"><use href="#ic-data"/></svg></span><span class="tech-name">Realtime</span></div>
+              <div class="tech tech--concept" data-tip="Almacenamiento y entrega de archivos e imágenes subidos por usuarios."><span class="tech-glyph" aria-hidden="true"><svg class="tech-ic"><use href="#ic-data"/></svg></span><span class="tech-name">Storage</span></div>
+              <div class="tech tech--concept" data-tip="Reglas en la base de datos que controlan qué filas puede ver o editar cada usuario."><span class="tech-glyph" aria-hidden="true"><svg class="tech-ic"><use href="#ic-data"/></svg></span><span class="tech-name">Row Level Security</span></div>
             </div>
           </div>
-          <div class="skill-row reveal">
-            <h3>Seguridad web</h3>
-            <div class="tags">
-              <span class="tag" data-tip="Content Security Policy: cabecera que bloquea scripts no autorizados (ataques XSS).">CSP</span>
-              <span class="tag" data-tip="Cabecera que obliga al navegador a usar siempre conexiones HTTPS cifradas.">HSTS</span>
-              <span class="tag" data-tip="Límite de peticiones por usuario para frenar abuso y ataques automatizados.">Rate limiting</span>
-              <span class="tag" data-tip="Filtrado y control de lo que publican los usuarios en la plataforma.">Moderación de contenido</span>
+          <div class="skill-block reveal">
+            <h3 class="skill-cat"><span class="skill-cat-num">03</span> Seguridad web</h3>
+            <div class="tech-grid">
+              <div class="tech tech--concept" data-tip="Content Security Policy: cabecera que bloquea scripts no autorizados (ataques XSS)."><span class="tech-glyph" aria-hidden="true"><svg class="tech-ic"><use href="#ic-shield"/></svg></span><span class="tech-name">CSP</span></div>
+              <div class="tech tech--concept" data-tip="Cabecera que obliga al navegador a usar siempre conexiones HTTPS cifradas."><span class="tech-glyph" aria-hidden="true"><svg class="tech-ic"><use href="#ic-shield"/></svg></span><span class="tech-name">HSTS</span></div>
+              <div class="tech tech--concept" data-tip="Límite de peticiones por usuario para frenar abuso y ataques automatizados."><span class="tech-glyph" aria-hidden="true"><svg class="tech-ic"><use href="#ic-shield"/></svg></span><span class="tech-name">Rate limiting</span></div>
+              <div class="tech tech--concept" data-tip="Filtrado y control de lo que publican los usuarios en la plataforma."><span class="tech-glyph" aria-hidden="true"><svg class="tech-ic"><use href="#ic-shield"/></svg></span><span class="tech-name">Moderación</span></div>
             </div>
           </div>
-          <div class="skill-row reveal">
-            <h3>Herramientas</h3>
-            <div class="tags">
-              <span class="tag" data-tip="Control de versiones: historial del código y trabajo en equipo sin pisarse.">Git</span>
-              <span class="tag" data-tip="Plataforma de despliegue y hosting donde viven mis proyectos en producción.">Vercel</span>
-              <span class="tag" data-tip="Servicio de tipografías web optimizadas para carga rápida.">Google Fonts</span>
+          <div class="skill-block reveal">
+            <h3 class="skill-cat"><span class="skill-cat-num">04</span> Herramientas</h3>
+            <div class="tech-grid">
+              <div class="tech" data-tip="Control de versiones: historial del código y trabajo en equipo sin pisarse."><img class="tech-logo" src="assets/logos/git.svg" alt="" width="40" height="40" loading="lazy" /><span class="tech-name">Git</span></div>
+              <div class="tech" data-tip="Plataforma de despliegue y hosting donde viven mis proyectos en producción."><img class="tech-logo" src="assets/logos/vercel.svg" alt="" width="40" height="40" loading="lazy" /><span class="tech-name">Vercel</span></div>
+              <div class="tech" data-tip="Servicio de tipografías web optimizadas para carga rápida."><img class="tech-logo" src="assets/logos/googlefonts.svg" alt="" width="40" height="40" loading="lazy" /><span class="tech-name">Google Fonts</span></div>
             </div>
           </div>
-          <div class="skill-row reveal">
-            <h3>Infraestructura TI</h3>
-            <div class="tags">
-              <span class="tag" data-tip="Instalación y administración de equipos servidores.">Servidores</span>
-              <span class="tag" data-tip="Configuración y diagnóstico de redes y conectividad.">Redes</span>
-              <span class="tag" data-tip="Instalación ordenada y certificable del cableado de red de un edificio u oficina.">Cableado estructurado</span>
-              <span class="tag" data-tip="Diagnóstico, mantenimiento y reparación de hardware y software.">Soporte HW/SW</span>
+          <div class="skill-block reveal">
+            <h3 class="skill-cat"><span class="skill-cat-num">05</span> Infraestructura TI</h3>
+            <div class="tech-grid">
+              <div class="tech tech--concept" data-tip="Instalación y administración de equipos servidores."><span class="tech-glyph" aria-hidden="true"><svg class="tech-ic"><use href="#ic-server"/></svg></span><span class="tech-name">Servidores</span></div>
+              <div class="tech tech--concept" data-tip="Configuración y diagnóstico de redes y conectividad."><span class="tech-glyph" aria-hidden="true"><svg class="tech-ic"><use href="#ic-server"/></svg></span><span class="tech-name">Redes</span></div>
+              <div class="tech tech--concept" data-tip="Instalación ordenada y certificable del cableado de red de un edificio u oficina."><span class="tech-glyph" aria-hidden="true"><svg class="tech-ic"><use href="#ic-server"/></svg></span><span class="tech-name">Cableado</span></div>
+              <div class="tech tech--concept" data-tip="Diagnóstico, mantenimiento y reparación de hardware y software."><span class="tech-glyph" aria-hidden="true"><svg class="tech-ic"><use href="#ic-server"/></svg></span><span class="tech-name">Soporte HW/SW</span></div>
             </div>
           </div>
-          <div class="skill-row reveal">
-            <h3>Extra</h3>
-            <div class="tags">
-              <span class="tag" data-tip="Estrategia digital, posicionamiento de marca y gestión de redes sociales.">Marketing digital</span>
-              <span class="tag" data-tip="Identidad gráfica y contenido visual para marcas.">Diseño visual</span>
+          <div class="skill-block reveal">
+            <h3 class="skill-cat"><span class="skill-cat-num">06</span> Extra</h3>
+            <div class="tech-grid">
+              <div class="tech tech--concept" data-tip="Estrategia digital, posicionamiento de marca y gestión de redes sociales."><span class="tech-glyph" aria-hidden="true"><svg class="tech-ic"><use href="#ic-spark"/></svg></span><span class="tech-name">Marketing digital</span></div>
+              <div class="tech tech--concept" data-tip="Identidad gráfica y contenido visual para marcas."><span class="tech-glyph" aria-hidden="true"><svg class="tech-ic"><use href="#ic-spark"/></svg></span><span class="tech-name">Diseño visual</span></div>
             </div>
           </div>
         </div>
@@ -130,30 +151,43 @@
 
     <!-- 04 · Proyectos -->
     <section id="proyectos">
-      <div class="index">04</div>
+      <div class="index"><span>04</span></div>
       <div class="content">
-        <h2 class="reveal">Proyectos seleccionados</h2>
-        <div class="projects">
-          <a class="project reveal" href="https://portal-n.vercel.app" target="_blank" rel="noopener">
-            <div class="thumb thumb-pn">
+        <div class="proj-head reveal">
+          <h2>Proyectos seleccionados</h2>
+          <span class="proj-hint">Arrastra <span class="arrow">→</span></span>
+        </div>
+        <div class="proj-gallery reveal" data-drag>
+          <a class="proj-panel" data-tilt href="https://portal-n.vercel.app" target="_blank" rel="noopener">
+            <span class="proj-num" aria-hidden="true">01</span>
+            <div class="proj-media">
               <img src="assets/portal-dev-uamm.png" alt="Portada del Portal DEV UAMM: hero oscuro con el titular «Aprende tecnología con práctica real»" width="1280" height="800" loading="lazy" />
             </div>
-            <div>
-              <h3>Portal DEV UAMM</h3>
-              <p class="desc">Sitio institucional y plataforma de comunidad para una comunidad tech académica: foro con hilos y likes, autenticación de usuarios, gestión de eventos y notificaciones en tiempo real.</p>
-              <p class="stack">HTML · CSS · JavaScript · Supabase · PostgreSQL</p>
-              <p class="link">Ver proyecto →</p>
+            <div class="proj-info">
+              <h3 class="proj-title">Portal DEV UAMM</h3>
+              <p class="proj-desc">Sitio institucional y plataforma social para una comunidad tech académica: foro con hilos y likes, autenticación de usuarios, gestión de eventos y notificaciones en tiempo real.</p>
+              <ul class="proj-stack"><li>HTML</li><li>CSS</li><li>JavaScript</li><li>Supabase</li><li>PostgreSQL</li></ul>
+              <span class="proj-cta">Ver proyecto <span class="arrow">→</span></span>
             </div>
           </a>
-          <a class="project reveal" href="https://cj-sreetwear.vercel.app/" target="_blank" rel="noopener">
-            <div class="thumb thumb-cj">
+          <a class="proj-panel" data-tilt href="https://cj-sreetwear.vercel.app/" target="_blank" rel="noopener">
+            <span class="proj-num" aria-hidden="true">02</span>
+            <div class="proj-media">
               <img src="assets/salmas-by-cj.png" alt="Portada de SALMAS by CJ: camiseta Dreamer Club sobre un paisaje desértico al atardecer" width="1280" height="800" loading="lazy" />
             </div>
-            <div>
-              <h3>SALMAS by CJ</h3>
-              <p class="desc">Sitio de marca streetwear con seis colecciones, club de miembros y contacto directo. Loader, animaciones reveal y un enfoque cuidado en la seguridad.</p>
-              <p class="stack">HTML · CSS · JavaScript · Node</p>
-              <p class="link">Ver proyecto →</p>
+            <div class="proj-info">
+              <h3 class="proj-title">Dreamer Club</h3>
+              <p class="proj-desc">Marca de streetwear con seis colecciones, club de miembros y contacto directo. Loader, animaciones reveal y atención especial a la seguridad.</p>
+              <ul class="proj-stack"><li>HTML</li><li>CSS</li><li>JavaScript</li><li>Node</li></ul>
+              <span class="proj-cta">Ver proyecto <span class="arrow">→</span></span>
+            </div>
+          </a>
+          <a class="proj-panel proj-panel--more" href="https://github.com/Dre4merBoy" target="_blank" rel="noopener">
+            <div class="proj-more-inner">
+              <span class="proj-num" aria-hidden="true">→</span>
+              <h3 class="proj-title">Más en GitHub</h3>
+              <p class="proj-desc">Explora el resto de mi código, experimentos y commits.</p>
+              <span class="proj-cta">Ir a GitHub <span class="arrow">→</span></span>
             </div>
           </a>
         </div>
@@ -162,7 +196,7 @@
 
     <!-- 05 · Cómo trabajo -->
     <section id="proceso">
-      <div class="index">05</div>
+      <div class="index"><span>05</span></div>
       <div class="content">
         <h2 class="reveal">Cómo trabajo</h2>
         <p class="process-intro reveal">Esta página es el caso de estudio: cada decisión de diseño que ves aquí siguió este proceso.</p>
@@ -170,7 +204,7 @@
           <div class="step reveal">
             <span class="step-num">1</span>
             <h3>Contenido primero</h3>
-            <p>Antes de pensar en cómo se ve, defino qué se comunica: qué necesita ver quien visita la página y en qué orden.</p>
+            <p>Antes de pensar en cómo se ve, defino qué se comunica: qué necesita encontrar quien visita la página y en qué orden.</p>
           </div>
           <div class="step reveal">
             <span class="step-num">2</span>
@@ -193,10 +227,17 @@
 
     <!-- 06 · Contacto -->
     <section id="contacto" class="contact">
-      <div class="index">06</div>
+      <div class="index"><span>06</span></div>
       <div class="content">
         <h2 class="reveal">Contacto</h2>
-        <a class="big-link reveal" href="mailto:luisjuarezwrld@gmail.com">Hablemos<span class="accent">.</span></a>
+        <!-- La cinta ES el CTA: mailto gigante. El texto en movimiento va
+             aria-hidden; el aria-label da el nombre accesible del enlace. -->
+        <a class="marquee reveal" href="mailto:luisjuarezwrld@gmail.com" aria-label="Hablemos — escríbeme a luisjuarezwrld@gmail.com">
+          <div class="marquee-track" aria-hidden="true">
+            <span>Hablemos&nbsp;·&nbsp;Hablemos&nbsp;·&nbsp;Hablemos&nbsp;·&nbsp;Hablemos&nbsp;·&nbsp;</span>
+            <span>Hablemos&nbsp;·&nbsp;Hablemos&nbsp;·&nbsp;Hablemos&nbsp;·&nbsp;Hablemos&nbsp;·&nbsp;</span>
+          </div>
+        </a>
         <div class="social reveal">
           <a href="https://github.com/Dre4merBoy" target="_blank" rel="noopener">GitHub</a>
           <a href="https://www.linkedin.com/in/luis-edgar-contreras-ju%C3%A1rez-0a6a033b1/" target="_blank" rel="noopener">LinkedIn</a>
@@ -215,6 +256,9 @@
        si el CDN falla, main.js lo detecta y la página queda estática pero completa. -->
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
+  <!-- Three.js (UMD r128, expone THREE global) para el planeta 3D del hero -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js" defer></script>
+  <script src="js/planet.js" defer></script>
   <script src="js/main.js" defer></script>
 
 </body>
