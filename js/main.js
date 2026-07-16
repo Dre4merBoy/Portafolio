@@ -106,6 +106,8 @@
     };
     g.addEventListener('pointerdown', (e) => {
       if (e.pointerType !== 'mouse') return;
+      // en escritorio la galería es rejilla (no deslizable): nada que arrastrar
+      if (g.scrollWidth <= g.clientWidth + 2) return;
       down = true; moved = 0; galleryDragged = false; startX = e.clientX; startScroll = g.scrollLeft;
       g.classList.add('is-dragging');
       window.addEventListener('pointermove', onMove);
@@ -221,6 +223,32 @@
     });
   }
 
+  /* ---- Modo oscuro: alterna y recuerda la elección ----
+     El tema inicial ya lo aplicó el script inline del <head> (sin destello);
+     aquí solo se maneja el botón y se guarda la preferencia. */
+  function initTheme() {
+    const root = document.documentElement;
+    const btn = document.querySelector('[data-theme-toggle]');
+    const apply = (t) => {
+      root.setAttribute('data-theme', t);
+      if (btn) btn.setAttribute('aria-label', t === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+    };
+    // por si el script del head no corrió
+    if (!root.getAttribute('data-theme')) {
+      let guardado = null;
+      try { guardado = localStorage.getItem('tema'); } catch (_) {}
+      apply(guardado || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+    } else {
+      apply(root.getAttribute('data-theme'));
+    }
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const nuevo = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      apply(nuevo);
+      try { localStorage.setItem('tema', nuevo); } catch (_) {}
+    });
+  }
+
   /* ---- Reloj + ubicación en vivo (hora de Monterrey) ---- */
   function initClock() {
     const el = document.querySelector('[data-clock]');
@@ -259,10 +287,16 @@
     const out = document.querySelector('[data-proj-counter]');
     const panels = [...g.querySelectorAll('.proj-panel')];
     if (!panels.length) return;
-    g.classList.add('js-focus');
     const total = panels.length;
     const pad = (n) => String(n).padStart(2, '0');
     const update = () => {
+      // En escritorio es rejilla: todo visible, sin foco ni contador.
+      if (g.scrollWidth <= g.clientWidth + 2) {
+        g.classList.remove('js-focus');
+        panels.forEach((p) => p.classList.remove('is-focus'));
+        return;
+      }
+      g.classList.add('js-focus');
       const gr = g.getBoundingClientRect();
       const center = gr.left + gr.width / 2;
       let idx = 0, best = Infinity;
@@ -359,6 +393,7 @@
   safe(initCursorHalo, 'cursorHalo');
   safe(initTilt, 'tilt');
   safe(initDragScroll, 'dragScroll');
+  safe(initTheme, 'theme');
   safe(initHeroType, 'heroType');
   safe(initConstel, 'constel');
   safe(initConstel3D, 'constel3D');

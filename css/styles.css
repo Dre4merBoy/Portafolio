@@ -10,7 +10,7 @@
   --paper: #FAFAF8;
   --ink: #111110;
   --ink-soft: #444440;
-  --gray: #8A8A85;
+  --gray: #6E6E69; /* antes #8A8A85: daba 3.32 de contraste sobre el papel (AA pide 4.5) */
   --line: #E4E3DD;
 
   /* Acento violeta (Juice WRLD). accent = texto/enlaces sobre claro (AA);
@@ -19,11 +19,18 @@
   --accent-bright: #8B5CF6;
   --pink: #DB2777;
 
-  /* Color — hero nocturno */
+  /* Color — hero nocturno (igual en ambos temas: el hero siempre es de noche) */
   --night: #0C0A16;
   --night-soft: #17132A;
   --night-ink: #F5F3FF;      /* titulares sobre noche */
   --night-ink-soft: #A79FC5; /* párrafos sobre noche */
+
+  /* Superficies y fondo dinámico (tokenizados para poder invertirlos) */
+  --nav-bg: rgba(250, 250, 248, 0.9);
+  --fx-cursor: 9%;   /* fuerza del halo que sigue al cursor */
+  --fx-mesh: 10%;    /* fuerza de las manchas de color del fondo */
+  --fx-mesh2: 7%;
+  --fx-grain: 0.035;
 
   /* Tipografía */
   --display: 'Space Grotesk', sans-serif;
@@ -47,6 +54,27 @@
   --dur-lift: 0.4s;
   --dur-reveal: 0.7s;
 }
+
+/* ---------- Modo oscuro ----------
+   Solo se invierten las superficies del CUERPO. El hero y los overlays
+   (--night*) ya eran de noche y no cambian: así el tema es coherente.
+   El acento sube a violeta claro: #6D28D9 no contrasta sobre fondo oscuro. */
+:root[data-theme='dark'] {
+  --paper: #100D1C;
+  --ink: #F2EFFB;
+  --ink-soft: #B9B2D0;
+  --gray: #857D9E;
+  --line: rgba(255, 255, 255, 0.13);
+  --accent: #A78BFA;
+  --nav-bg: rgba(16, 13, 28, 0.85);
+  /* el fondo puede permitirse más color sobre oscuro */
+  --fx-cursor: 16%;
+  --fx-mesh: 18%;
+  --fx-mesh2: 12%;
+  --fx-grain: 0.05;
+}
+/* El logo de Vercel es negro sólido: sobre fondo oscuro desaparecería */
+:root[data-theme='dark'] img[src$='vercel.svg'] { filter: invert(1); }
 
 /* ---------- Reset ---------- */
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -78,12 +106,29 @@ body {
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  /* halo que sigue al cursor (--mx/--my los pone el JS) */
   background: radial-gradient(
-    600px circle at var(--mx, 50%) var(--my, 40%),
-    color-mix(in srgb, var(--accent-bright) 8%, transparent),
-    transparent 65%
+    620px circle at var(--mx, 50%) var(--my, 40%),
+    color-mix(in srgb, var(--accent-bright) var(--fx-cursor), transparent),
+    transparent 62%
   );
-  transition: background-position 0.3s ease;
+}
+/* Malla de color que deriva despacio: el fondo "respira" solo.
+   Bucle lento (34s) → no es intrusivo, no se gatea con reduced-motion. */
+.bg-fx::before {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(38% 42% at 18% 26%, color-mix(in srgb, var(--accent-bright) var(--fx-mesh), transparent), transparent 70%),
+    radial-gradient(34% 38% at 82% 18%, color-mix(in srgb, var(--pink) var(--fx-mesh2), transparent), transparent 70%),
+    radial-gradient(42% 46% at 72% 84%, color-mix(in srgb, var(--accent) var(--fx-mesh), transparent), transparent 70%);
+  filter: blur(40px);
+  animation: meshDrift 34s ease-in-out infinite alternate;
+}
+@keyframes meshDrift {
+  from { transform: translate3d(-2%, -1%, 0) scale(1); }
+  to   { transform: translate3d(2%, 2%, 0) scale(1.12); }
 }
 .bg-fx::after {
   content: '';
@@ -91,7 +136,7 @@ body {
   inset: 0;
   /* ruido SVG (feTurbulence) como textura de grano; se repite en mosaico */
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity: 0.035;
+  opacity: var(--fx-grain);
 }
 
 /* ---------- Nav ---------- */
@@ -103,7 +148,7 @@ nav {
   align-items: center;
   padding: var(--space-6) var(--space-10);
   border-bottom: 1px solid var(--line);
-  background: rgba(250, 250, 248, 0.9);
+  background: var(--nav-bg);
   backdrop-filter: blur(8px);
   z-index: 10;
 }
@@ -113,6 +158,37 @@ nav .logo {
   letter-spacing: 2px;
   font-size: 14px;
 }
+.nav-right { display: flex; align-items: center; gap: var(--space-6); }
+
+/* Botón de tema: se muestra la luna en claro (para ir a oscuro) y viceversa */
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color var(--dur-micro), color var(--dur-micro);
+}
+.theme-toggle:hover, .theme-toggle:focus-visible { border-color: var(--accent); color: var(--accent); outline: none; }
+.theme-toggle svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+.ic-sun { display: none; }
+:root[data-theme='dark'] .ic-sun { display: block; }
+:root[data-theme='dark'] .ic-moon { display: none; }
+nav.over-hero .theme-toggle { color: #fff; border-color: rgba(255, 255, 255, 0.3); }
+nav.over-hero .theme-toggle:hover { border-color: #fff; }
+
 /* Reloj + ubicación en vivo (estilo Federico Pian) */
 .nav-clock {
   font-family: var(--mono);
@@ -605,7 +681,8 @@ h2 {
 }
 .proj-hint .arrow { display: inline-block; animation: nudge 1.4s ease-in-out infinite; }
 @keyframes nudge { 50% { transform: translateX(6px); } }
-.proj-meta { display: flex; align-items: center; gap: var(--space-6); }
+/* Contador + "Arrastra" solo tienen sentido en el carrusel de móvil */
+.proj-meta { display: none; align-items: center; gap: var(--space-6); }
 .proj-counter {
   font-family: var(--mono);
   font-size: 14px;
@@ -622,26 +699,26 @@ h2 {
   margin-bottom: 2px;
 }
 
+/* Escritorio: rejilla. Con 2 proyectos + CTA caben todos a la vista; obligar a
+   arrastrar en pantalla grande era ineficaz. El deslizable queda para móvil. */
 .proj-gallery {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-8);
-  overflow-x: auto;
-  overflow-y: visible; /* que el glow/tilt no se recorte (gotcha carruseles) */
-  scroll-snap-type: x mandatory;
   padding: var(--space-8) 0 var(--space-10);
   margin-top: var(--space-8);
-  scrollbar-width: none;
-  cursor: grab;
+  overflow: visible;
 }
+.proj-gallery .proj-panel--more { grid-column: 1 / -1; min-height: 240px; }
 .proj-gallery::-webkit-scrollbar { display: none; }
 .proj-gallery.is-dragging { cursor: grabbing; scroll-snap-type: none; }
 /* durante el arrastre no aplicamos el tilt del cursor (evita jitter) */
 .proj-gallery.is-dragging .proj-panel { transform: none; }
 
+/* Nota: el dimensionado del panel lo pone la rejilla (escritorio) o el
+   bloque móvil (flex + snap). Aquí solo va lo común a ambos. */
 .proj-panel {
   position: relative;
-  flex: 0 0 min(85vw, 640px);
-  scroll-snap-align: center;
   display: flex;
   flex-direction: column;
   text-decoration: none;
@@ -996,7 +1073,18 @@ footer {
   section { grid-template-columns: 48px 1fr; }
   .content { padding: 56px 20px; }
   .about-grid { grid-template-columns: 1fr; }
-  .proj-panel { flex-basis: 86vw; }
+  /* Móvil: el carrusel deslizable SÍ es natural (touch) */
+  .proj-gallery {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: visible; /* que el glow no se recorte */
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    cursor: grab;
+  }
+  .proj-gallery .proj-panel--more { grid-column: auto; min-height: 0; }
+  .proj-panel { flex: 0 0 86vw; scroll-snap-align: center; }
+  .proj-meta { display: flex; }
   .tech-grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
   /* Timeline: el año se apila encima del cargo */
   .tl-item { grid-template-columns: 1fr; gap: 4px; }

@@ -17,6 +17,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- Aplica el tema ANTES de pintar: evita el destello de modo claro al cargar
+       en oscuro. Va inline y sin defer a propósito. -->
+  <script>
+    try {
+      var t = localStorage.getItem('tema') ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  </script>
 </head>
 <body>
 
@@ -38,12 +48,20 @@
   <nav>
     <span class="logo">LC</span>
     <span class="nav-clock" data-clock aria-hidden="true">San Nicolás&nbsp;·&nbsp;--:--</span>
-    <ul>
-      <li class="nav-secondary"><a href="#sobre-mi">Sobre mí</a></li>
-      <li><a href="#skills">Skills</a></li>
-      <li><a href="#proyectos">Proyectos</a></li>
-      <li><a href="#contacto">Contacto</a></li>
-    </ul>
+    <div class="nav-right">
+      <ul>
+        <li class="nav-secondary"><a href="#sobre-mi">Sobre mí</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#proyectos">Proyectos</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+      </ul>
+      <button type="button" class="theme-toggle" data-theme-toggle aria-label="Cambiar a modo oscuro">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <g class="ic-sun"><circle cx="12" cy="12" r="4.2" /><path d="M12 2.6v2.2M12 19.2v2.2M4.6 12H2.4M21.6 12h-2.2M6.5 6.5 5 5M19 19l-1.5-1.5M17.5 6.5 19 5M5 19l1.5-1.5" /></g>
+          <path class="ic-moon" d="M20.2 14.3A8.3 8.3 0 0 1 9.7 3.8a8.5 8.5 0 1 0 10.5 10.5Z" />
+        </svg>
+      </button>
+    </div>
     <span class="nav-progress" aria-hidden="true"></span>
   </nav>
 
