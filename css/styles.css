@@ -53,7 +53,10 @@
 /* overflow-x: clip también aquí (además de en body): garantiza que nada
    —marquee, glows del hero— genere scroll horizontal. clip no crea
    contenedor de scroll, así que el sticky de los numerales sigue vivo. */
-html { scroll-behavior: smooth; overflow-x: clip; }
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
+}
 body {
   background: var(--paper);
   color: var(--ink);
@@ -110,6 +113,16 @@ nav .logo {
   letter-spacing: 2px;
   font-size: 14px;
 }
+/* Reloj + ubicación en vivo (estilo Federico Pian) */
+.nav-clock {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gray);
+  white-space: nowrap;
+}
+nav.over-hero .nav-clock { color: var(--night-ink-soft); }
 nav ul { display: flex; gap: 28px; list-style: none; }
 nav a {
   text-decoration: none;
@@ -126,14 +139,16 @@ nav {
   transition: background var(--dur-lift) ease, border-color var(--dur-lift) ease;
 }
 nav.over-hero {
-  background: transparent;
-  border-bottom-color: rgba(255, 255, 255, 0.1);
+  /* velo oscuro degradado: el texto se lee aunque el planeta esté brillante detrás */
+  background: linear-gradient(to bottom, rgba(12, 10, 22, 0.72) 0%, rgba(12, 10, 22, 0.35) 65%, transparent 100%);
+  border-bottom-color: rgba(255, 255, 255, 0.12);
 }
-nav.over-hero .logo { color: var(--night-ink); }
-nav.over-hero a { color: var(--night-ink-soft); }
+nav.over-hero .logo { color: #fff; }
+nav.over-hero a { color: rgba(255, 255, 255, 0.82); }
 nav.over-hero a:hover,
 nav.over-hero a:focus-visible,
-nav.over-hero a.active { color: var(--night-ink); }
+nav.over-hero a.active { color: #fff; }
+nav.over-hero .nav-clock { color: rgba(255, 255, 255, 0.72); }
 
 /* Barra de progreso de lectura: GSAP la escala de 0 a 1 con el scroll */
 .nav-progress {
@@ -248,6 +263,74 @@ h1 {
   color: var(--night-ink);
 }
 h1 .accent { color: var(--accent-bright); }
+/* Línea de código: el nombre se teclea (JS) con cursor parpadeante */
+.hero-code {
+  font-family: ui-monospace, 'Cascadia Code', 'JetBrains Mono', Consolas, monospace;
+  font-size: clamp(15px, 2.6vw, 32px);
+  letter-spacing: -0.01em;
+  margin-bottom: var(--space-4);
+  color: var(--night-ink);
+  white-space: nowrap;
+}
+.hero-code .tok-key { color: #c792ea; }               /* keyword (violeta) */
+.hero-code .tok-var { color: #82aaff; }               /* variable (azul) */
+.hero-code .tok-op  { color: var(--night-ink-soft); } /* operador */
+.hero-code .tok-str { color: #c3e88d; }               /* string (verde) */
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--accent-bright);
+  margin-left: 1px;
+  vertical-align: -0.12em;
+  animation: caretBlink 1s steps(1) infinite;
+}
+@keyframes caretBlink { 50% { opacity: 0; } }
+
+/* Declaración del hero (estilo Federico Pian): frase en 1ª persona,
+   mayúsculas, grande, envuelta en pocas líneas */
+.hero-statement {
+  text-transform: uppercase;
+  font-size: clamp(30px, 5.6vw, 76px);
+  line-height: 1.03;
+  letter-spacing: -0.015em;
+  max-width: 17ch;
+}
+/* Pista "scroll ↓" al pie del hero */
+.scroll-hint {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--night-ink-soft);
+  text-decoration: none;
+}
+.scroll-hint:hover { color: var(--night-ink); }
+.scroll-arrow { display: inline-block; animation: scrollBob 1.6s ease-in-out infinite; }
+@keyframes scrollBob { 50% { transform: translateY(5px); } }
+
+/* Indicador de progreso de scroll en % — fijo, legible sobre claro y oscuro */
+.scroll-pct {
+  position: fixed;
+  right: 20px;
+  bottom: 18px;
+  z-index: 9;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: #fff;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+}
 .hero p {
   max-width: 420px;
   margin-top: 28px;
@@ -363,6 +446,15 @@ h2 {
 }
 [data-tilt]:hover { transition-duration: 0.12s; }
 .about-grid p { color: var(--ink-soft); }
+/* Frase-gancho de "Sobre mí": grande, para enganchar al reclutador */
+.about-lead {
+  font-family: var(--display);
+  font-size: clamp(20px, 2.6vw, 27px);
+  line-height: 1.3;
+  font-weight: 500;
+  color: var(--ink) !important;
+  margin-bottom: var(--space-6);
+}
 /* Bandera a la izquierda (ragged right): el estándar del estilo suizo.
    En columnas estrechas el justificado abría "ríos" de espacio. */
 .about-grid p, .project .desc, .step p {
@@ -381,111 +473,116 @@ h2 {
 }
 .fact-list .label { color: var(--gray); }
 
-/* ---------- Skills: rejilla de tarjetas con logos + hover 3D ---------- */
-.skill-group { max-width: 1000px; display: grid; gap: var(--space-10); }
+/* ---------- Skills: anillo orbital con halo ---------- */
+.icon-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+.skills-intro { color: var(--gray); max-width: 520px; margin-bottom: var(--space-10); }
 
-/* Etiqueta de categoría (brutalista: mono, mayúsculas, número en acento) */
-.skill-cat {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  font-family: var(--display);
-  font-size: 13px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  padding-bottom: 12px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid var(--ink);
+/* Constelación: logos dispersos unidos por líneas; el plano se inclina con el cursor
+   (data-tilt). Nodos y líneas viven en el MISMO plano, así nunca se desalinean. */
+.constel {
+  position: relative;
+  width: 100%;
+  max-width: 860px;
+  aspect-ratio: 16 / 10;
+  margin: 0 auto var(--space-8);
+  perspective: 900px; /* profundidad real: los nodos con --z hacen parallax */
 }
-.skill-cat-num { font-size: 12px; font-weight: 700; color: var(--accent); }
-
-.tech-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
-  gap: 12px;
-  perspective: 900px; /* da profundidad al pop 3D de las tarjetas */
+/* Capa de líneas: en espacio de pantalla (fuera del plano 3D). El JS pone las
+   coordenadas en px hacia el centro proyectado de cada nodo. */
+.constel-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.constel-lines line {
+  stroke: color-mix(in srgb, var(--accent) 38%, transparent);
+  stroke-width: 1;
 }
-.tech {
-  position: relative; /* ancla del tooltip */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 22px 12px;
-  border: 1px solid var(--line);
-  background: var(--paper);
+/* El plano que se inclina (JS pone --rx/--ry) */
+.constel-scene {
+  position: absolute;
+  inset: 0;
   transform-style: preserve-3d;
-  transition: transform var(--dur-lift) ease, box-shadow var(--dur-lift) ease,
-    border-color var(--dur-micro), background var(--dur-micro);
-  cursor: default;
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
 }
-/* Hover 3D: la tarjeta se inclina y el logo salta hacia el usuario (translateZ) */
-.tech:hover {
-  transform: translateY(-6px) rotateX(7deg);
-  border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent-bright) 6%, var(--paper));
-  box-shadow: 0 24px 46px -18px color-mix(in srgb, var(--accent-bright) 60%, transparent);
-  z-index: 2;
-}
-.tech-logo {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-  filter: grayscale(0.15);
-  transition: transform var(--dur-lift) ease, filter var(--dur-micro);
-}
-.tech:hover .tech-logo { transform: translateZ(28px) scale(1.08); filter: grayscale(0); }
-.tech-name {
-  font-family: var(--display);
-  font-size: 13px;
-  font-weight: 500;
-  text-align: center;
-  line-height: 1.2;
-  transition: transform var(--dur-lift) ease;
-}
-.tech:hover .tech-name { transform: translateZ(14px); }
-/* Tarjetas de concepto (sin logo de marca): icono de línea por categoría */
-.tech-glyph {
-  width: 40px;
-  height: 40px;
+.constel-node {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 62px;
+  height: 62px;
   display: grid;
   place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transform-style: preserve-3d;
+  /* --z: cada nodo flota a distinta altura → parallax al inclinar el plano */
+  transform: translate(-50%, -50%) translateZ(var(--z, 0px));
+  box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.35);
+  transition: border-color var(--dur-micro), box-shadow var(--dur-micro), transform var(--dur-lift) ease;
 }
-.icon-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
-.tech-ic {
-  width: 28px;
-  height: 28px;
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: stroke var(--dur-micro), transform var(--dur-lift) ease;
+.constel-node img { width: 30px; height: 30px; object-fit: contain; }
+.constel-node:hover,
+.constel-node:focus-visible,
+.constel-node.is-active {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 6px color-mix(in srgb, var(--accent-bright) 16%, transparent),
+    0 0 46px -4px color-mix(in srgb, var(--accent-bright) 70%, transparent);
+  /* el nodo activo salta hacia el usuario */
+  transform: translate(-50%, -50%) translateZ(calc(var(--z, 0px) + 60px)) scale(1.1);
+  outline: none;
+  z-index: 2;
 }
-.tech:hover .tech-ic { stroke: var(--accent-bright); transform: translateZ(28px) scale(1.1); }
-
-/* Tooltip 100% CSS: el texto vive en data-tip y lo pinta ::after. */
-.tech[data-tip]::after {
-  content: attr(data-tip);
+.constel-label {
   position: absolute;
-  bottom: calc(100% + 8px);
+  top: calc(100% + 7px);
   left: 50%;
   transform: translateX(-50%);
-  width: max-content;
-  max-width: min(240px, 70vw);
-  background: var(--ink);
-  color: var(--paper);
-  font-size: 12px;
-  line-height: 1.45;
-  padding: 8px 12px;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity var(--dur-micro) ease 0.15s;
-  z-index: 5;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gray);
+  white-space: nowrap;
+  transition: color var(--dur-micro);
 }
-.tech[data-tip]:hover::after { opacity: 1; visibility: visible; }
+.constel-node:hover .constel-label,
+.constel-node.is-active .constel-label { color: var(--accent); }
+
+/* Info de la tecnología activa, bajo la constelación */
+.constel-info { max-width: 560px; margin: 0 auto var(--space-12); text-align: center; }
+.constel-name { font-family: var(--display); font-size: clamp(20px, 2.6vw, 26px); font-weight: 500; margin-bottom: 8px; }
+.constel-desc { color: var(--ink-soft); font-size: 15px; line-height: 1.5; }
+
+/* "También trabajo con": capacidades sin logo, en píldoras */
+.skills-more { max-width: 760px; margin: 0 auto; text-align: center; }
+.skills-more-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 14px;
+}
+.skills-more-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.skills-more-list li {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 14px;
+  transition: border-color var(--dur-micro), color var(--dur-micro);
+}
+.skills-more-list li:hover { border-color: var(--accent); color: var(--accent); }
 
 /* ---------- Proyectos: galería horizontal 3D ---------- */
 .proj-head {
@@ -508,6 +605,22 @@ h2 {
 }
 .proj-hint .arrow { display: inline-block; animation: nudge 1.4s ease-in-out infinite; }
 @keyframes nudge { 50% { transform: translateX(6px); } }
+.proj-meta { display: flex; align-items: center; gap: var(--space-6); }
+.proj-counter {
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums; /* no baila el ancho al cambiar de número */
+}
+.proj-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
 
 .proj-gallery {
   display: flex;
@@ -527,7 +640,7 @@ h2 {
 
 .proj-panel {
   position: relative;
-  flex: 0 0 min(82vw, 560px);
+  flex: 0 0 min(85vw, 640px);
   scroll-snap-align: center;
   display: flex;
   flex-direction: column;
@@ -537,20 +650,27 @@ h2 {
   background: var(--paper);
   overflow: hidden;
   transform-style: preserve-3d;
-  transition: box-shadow var(--dur-lift) ease, border-color var(--dur-micro);
+  transition: box-shadow var(--dur-lift) ease, border-color var(--dur-micro),
+    opacity var(--dur-reveal) ease, filter var(--dur-reveal) ease;
 }
 .proj-panel:hover {
   border-color: var(--accent);
   box-shadow: 0 34px 64px -26px color-mix(in srgb, var(--accent-bright) 60%, transparent);
 }
+/* Realce del panel centrado (sin atenuar los demás, para no verse "lavado"):
+   solo un borde y sombra violeta en el que está en foco. */
+.proj-gallery.js-focus .proj-panel.is-focus {
+  border-color: var(--accent);
+  box-shadow: 0 36px 72px -28px color-mix(in srgb, var(--accent-bright) 62%, transparent);
+}
 .proj-num {
   position: absolute;
   top: 12px;
-  left: 18px;
+  left: 20px;
   z-index: 3;
   font-family: var(--display);
   font-weight: 700;
-  font-size: 42px;
+  font-size: 60px;
   line-height: 1;
   color: #fff;
   mix-blend-mode: difference; /* legible sobre cualquier zona de la imagen */
@@ -574,17 +694,28 @@ h2 {
   flex-direction: column;
   gap: 10px;
 }
-.proj-title { font-family: var(--display); font-size: clamp(22px, 3vw, 30px); font-weight: 500; }
+.proj-title { font-family: var(--display); font-size: clamp(24px, 3.2vw, 34px); font-weight: 500; }
 .proj-desc { color: var(--gray); font-size: 14px; }
-.proj-stack { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
-.proj-stack li {
+/* Ficha editorial estilo Federico: filas "LABEL. valor" con hairlines */
+.proj-fields { margin: 2px 0; border-top: 1px solid var(--line); }
+.proj-field {
+  display: flex;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+}
+.proj-field dt {
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: 1px;
   text-transform: uppercase;
+  color: var(--accent);
+  min-width: 54px;
+  padding-top: 2px;
+}
+.proj-field dd {
+  font-size: 13.5px;
   color: var(--ink-soft);
-  border: 1px solid var(--line);
-  padding: 4px 10px;
 }
 .proj-cta {
   margin-top: 8px;
@@ -622,40 +753,39 @@ h2 {
   font-size: 56px;
 }
 
-/* ---------- Proceso ---------- */
-.process-intro {
-  color: var(--gray);
-  max-width: 480px;
-  margin-bottom: var(--space-12);
-}
-.process-grid {
+/* ---------- Experiencia (timeline) ---------- */
+.timeline { list-style: none; max-width: 900px; border-top: 1px solid var(--line); }
+.tl-item {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
-  max-width: 900px;
-  border-top: 1px solid var(--line);
-  border-left: 1px solid var(--line);
-}
-.step {
-  padding: 28px;
-  border-right: 1px solid var(--line);
+  grid-template-columns: 150px 1fr;
+  gap: var(--space-8);
+  padding: var(--space-8) 0;
   border-bottom: 1px solid var(--line);
 }
-.step-num {
-  font-family: var(--display);
+.tl-year {
+  font-family: var(--mono);
   font-size: 13px;
-  font-weight: 700;
+  letter-spacing: 1px;
   color: var(--accent);
-  display: block;
-  margin-bottom: 14px;
+  padding-top: 4px;
 }
-.step h3 {
+.tl-body { min-width: 0; }
+.tl-role {
   font-family: var(--display);
-  font-size: 17px;
+  font-size: clamp(18px, 2.4vw, 24px);
   font-weight: 500;
-  margin-bottom: 10px;
+  line-height: 1.15;
 }
-.step p { font-size: 14px; color: var(--ink-soft); }
+.tl-org {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-top: 8px;
+}
+.tl-desc { color: var(--ink-soft); font-size: 15px; margin-top: 10px; max-width: 60ch; }
+.tl-item--edu .tl-role { font-size: 18px; }
 
 /* ---------- Contacto ---------- */
 .contact .content {
@@ -721,6 +851,130 @@ h2 {
 /* dos spans idénticos: al llegar a -50% el segundo ocupa el lugar del primero */
 @keyframes marquee { to { transform: translateX(-50%); } }
 
+/* ---------- Detalle de proyecto (overlay: info fija + capturas verticales) ---------- */
+.pdetail {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: minmax(300px, 400px) 1fr;
+  background: var(--night);
+  color: var(--night-ink);
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+.pdetail[hidden] { display: none; }
+.pdetail.is-open { opacity: 1; transform: none; }
+
+.pdetail-info {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  overflow-y: auto;
+  padding: var(--space-12) var(--space-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+.pdetail-close {
+  align-self: flex-start;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: var(--night-ink);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background var(--dur-micro), border-color var(--dur-micro);
+  margin-bottom: var(--space-6);
+}
+.pdetail-close:hover { background: var(--accent); border-color: var(--accent); }
+.pdetail-kicker {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent-bright);
+}
+.pdetail-title {
+  font-family: var(--display);
+  font-size: clamp(28px, 3.4vw, 44px);
+  font-weight: 700;
+  line-height: 1.02;
+}
+.pdetail-desc { color: var(--night-ink-soft); font-size: 15px; max-width: 42ch; }
+.pdetail-fields { margin: var(--space-4) 0; border-top: 1px solid rgba(255, 255, 255, 0.12); }
+.pdetail-fields > div {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.pdetail-fields dt {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent-bright);
+  min-width: 56px;
+  padding-top: 2px;
+}
+.pdetail-fields dd { font-size: 14px; color: var(--night-ink); }
+.pdetail-visit {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--night-ink);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  border-bottom: 1px solid var(--accent-bright);
+  padding-bottom: 4px;
+}
+.pdetail-visit .arrow { display: inline-block; transition: transform var(--dur-micro) ease; }
+.pdetail-visit:hover .arrow { transform: translateX(6px); }
+.pdetail-counter {
+  margin-top: auto;
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--night-ink-soft);
+  font-variant-numeric: tabular-nums;
+  padding-top: var(--space-8);
+}
+.pdetail-shots {
+  height: 100vh;
+  height: 100svh;
+  overflow-y: auto;
+  padding: var(--space-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  scroll-behavior: smooth;
+}
+.pshot { margin: 0; }
+.pshot figcaption {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent-bright);
+  margin-bottom: 10px;
+}
+.pdetail-shots img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6);
+}
+
 /* ---------- Footer ---------- */
 footer {
   display: flex;
@@ -741,11 +995,16 @@ footer {
 @media (max-width: 720px) {
   section { grid-template-columns: 48px 1fr; }
   .content { padding: 56px 20px; }
-  .about-grid, .process-grid { grid-template-columns: 1fr; }
+  .about-grid { grid-template-columns: 1fr; }
   .proj-panel { flex-basis: 86vw; }
   .tech-grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+  /* Timeline: el año se apila encima del cargo */
+  .tl-item { grid-template-columns: 1fr; gap: 4px; }
+  .tl-year { padding-top: 0; }
   nav ul { gap: 16px; }
   nav { padding: 16px 20px; }
+  /* En móvil el reloj no cabe junto al menú */
+  .nav-clock { display: none; }
   /* En móvil solo los destinos esenciales; el scroll recorre el resto */
   .nav-secondary { display: none; }
   /* izquierda = riel (48px) + padding de contenido (20px) */
@@ -756,6 +1015,22 @@ footer {
   .hero-meta { display: none; }
   .hero-999 { top: 9vh; left: 6vw; }
   .about-photo { max-width: 280px; }
+  /* Constelación compacta en móvil: nodos más chicos y sin etiquetas (se encimarían) */
+  .constel { aspect-ratio: 1 / 1; }
+  .constel-node { width: 44px; height: 44px; }
+  .constel-node img { width: 22px; height: 22px; }
+  .constel-label { display: none; }
+  /* Detalle de proyecto: se apila (info arriba, capturas abajo) y scrollea todo el overlay */
+  .pdetail { grid-template-columns: 1fr; overflow-y: auto; }
+  .pdetail-info {
+    height: auto;
+    overflow: visible;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 72px 20px 24px;
+  }
+  .pdetail-shots { height: auto; overflow: visible; padding: 20px; gap: 20px; }
+  .pdetail-counter { margin-top: var(--space-6); padding-top: var(--space-6); }
 }
 
 /* ---------- Accesibilidad: reduce motion ----------
@@ -766,4 +1041,6 @@ footer {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .status .dot { animation: none; }
+  .caret { animation: none; }
+  .orbit-ring, .orbit-ico { animation: none; }
 }
