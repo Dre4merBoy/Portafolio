@@ -4,33 +4,41 @@
    hero nocturno atmosférico → cuerpo claro de galería. Acento violeta (999).
    ===================================================================== */
 
-/* ---------- Tokens ---------- */
+/* ---------- Tokens ----------
+   GIRO VHS: todo el sitio es de noche (como Skills). El "papel" ES el cielo
+   --night; la antigua dicotomía claro/oscuro desapareció y con ella el
+   toggle de tema. Off-White industrial + textura VHS por encima. */
 :root {
-  /* Color — cuerpo claro */
-  --paper: #FAFAF8;
-  --ink: #111110;
-  --ink-soft: #444440;
-  --gray: #6E6E69; /* antes #8A8A85: daba 3.32 de contraste sobre el papel (AA pide 4.5) */
-  --line: #E4E3DD;
+  /* Color — todo negro editorial (el fondo de "Sobre mí", ahora global) */
+  --paper: #070609;          /* un solo fondo en toda la página */
+  --ink: #F2EFFB;
+  --ink-soft: #B9B2D0;
+  --gray: #857D9E;           /* AA sobre la noche */
+  --line: rgba(255, 255, 255, 0.13);
 
-  /* Acento violeta (Juice WRLD). accent = texto/enlaces sobre claro (AA);
-     accent-bright y pink = glows y acentos sobre el hero oscuro. */
-  --accent: #6D28D9;
+  /* Acento violeta (Juice WRLD). Sobre oscuro, el AA lo da el claro. */
+  --accent: #A78BFA;
   --accent-bright: #8B5CF6;
   --pink: #DB2777;
 
-  /* Color — hero nocturno (igual en ambos temas: el hero siempre es de noche) */
-  --night: #0C0A16;
+  /* Tonos de noche (superficies y jerarquía sobre oscuro) */
+  --night: #070609;
   --night-soft: #17132A;
   --night-ink: #F5F3FF;      /* titulares sobre noche */
   --night-ink-soft: #A79FC5; /* párrafos sobre noche */
 
-  /* Superficies y fondo dinámico (tokenizados para poder invertirlos) */
-  --nav-bg: rgba(250, 250, 248, 0.9);
-  --fx-cursor: 9%;   /* fuerza del halo que sigue al cursor */
-  --fx-mesh: 10%;    /* fuerza de las manchas de color del fondo */
-  --fx-mesh2: 7%;
-  --fx-grain: 0.035;
+  /* Retícula técnica (plano de fondo, compartida por todas las secciones) */
+  --grid-img:
+    linear-gradient(to right, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  --grid-size: 220px 220px;
+
+  /* Superficies y fondo dinámico */
+  --nav-bg: rgba(7, 6, 9, 0.85);
+  --fx-cursor: 16%;  /* fuerza del halo que sigue al cursor */
+  --fx-mesh: 18%;    /* fuerza de las manchas de color del fondo */
+  --fx-mesh2: 12%;
+  --fx-grain: 0.05;
 
   /* Tipografía */
   --display: 'Space Grotesk', sans-serif;
@@ -55,26 +63,8 @@
   --dur-reveal: 0.7s;
 }
 
-/* ---------- Modo oscuro ----------
-   Solo se invierten las superficies del CUERPO. El hero y los overlays
-   (--night*) ya eran de noche y no cambian: así el tema es coherente.
-   El acento sube a violeta claro: #6D28D9 no contrasta sobre fondo oscuro. */
-:root[data-theme='dark'] {
-  --paper: #100D1C;
-  --ink: #F2EFFB;
-  --ink-soft: #B9B2D0;
-  --gray: #857D9E;
-  --line: rgba(255, 255, 255, 0.13);
-  --accent: #A78BFA;
-  --nav-bg: rgba(16, 13, 28, 0.85);
-  /* el fondo puede permitirse más color sobre oscuro */
-  --fx-cursor: 16%;
-  --fx-mesh: 18%;
-  --fx-mesh2: 12%;
-  --fx-grain: 0.05;
-}
-/* El logo de Vercel es negro sólido: sobre fondo oscuro desaparecería */
-:root[data-theme='dark'] img[src$='vercel.svg'] { filter: invert(1); }
+/* (Ya no hay modo claro/oscuro: el sitio entero es nocturno. El logo negro
+   de Vercel vive en un nodo de constelación con fondo claro fijo.) */
 
 /* ---------- Reset ---------- */
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -86,7 +76,13 @@ html {
   overflow-x: clip;
 }
 body {
-  background: var(--paper);
+  /* Fondo + retícula técnica FIJA al viewport: la malla queda quieta como un
+     monitor mientras las secciones (cortinas) se deslizan por encima. En iOS
+     attachment:fixed degrada a scroll — aceptable, solo pierde el anclaje. */
+  background-color: var(--paper);
+  background-image: var(--grid-img);
+  background-size: var(--grid-size);
+  background-attachment: fixed;
   color: var(--ink);
   font-family: var(--body);
   font-size: 16px;
@@ -98,13 +94,15 @@ body {
 ::selection { background: var(--accent); color: var(--paper); }
 
 /* ---------- Fondo dinámico ----------
-   Capa fija tras todo el contenido. Un halo violeta muy tenue sigue al
-   cursor vía --mx/--my (JS los actualiza); sobre el cuerpo claro es sutil,
-   solo "respira". El grano da textura de impresión. Ambos pointer-events:none. */
+   Capa fija con halo violeta que sigue al cursor (--mx/--my, JS), malla que
+   deriva y grano. OJO: es un OVERLAY (z-index 2, sobre el contenido, bajo el
+   nav z10): con la cortina de secciones el cuerpo tiene fondo opaco y detrás
+   no se vería. A estas opacidades no compromete legibilidad y el grano-encima
+   es el acabado clásico Off-White. pointer-events:none → no captura clicks. */
 .bg-fx {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 2;
   pointer-events: none;
   /* halo que sigue al cursor (--mx/--my los pone el JS) */
   background: radial-gradient(
@@ -134,9 +132,47 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  /* ruido SVG (feTurbulence) como textura de grano; se repite en mosaico */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* VHS: scanlines horizontales + ruido SVG (feTurbulence) como grano.
+     Ambos a opacidad bajísima: textura de cinta, no estorbo de lectura. */
+  background-image:
+    repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.55) 0 1px, transparent 1px 3px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   opacity: var(--fx-grain);
+}
+
+/* ---------- VHS ---------- */
+/* Glitch cromático ocasional (aberración RGB breve, casi todo el tiempo en
+   reposo). steps(1) = corte seco, como un tirón de tracking. */
+@keyframes vhsGlitch {
+  0%, 91%, 96%, 100% { text-shadow: none; }
+  92% { text-shadow: -2px 0 var(--pink), 2px 0 #22d3ee; }
+  94% { text-shadow: 2px 0 var(--pink), -2px 0 #22d3ee; }
+}
+.hero-statement { animation: vhsGlitch 7s steps(1) infinite; }
+.constel-name { animation: vhsGlitch 9s steps(1) infinite; }
+
+/* Indicador ● REC con cronómetro de sesión (esquina del hero) */
+.vhs-rec {
+  position: absolute;
+  top: calc(var(--space-20) + 20px);
+  left: calc(90px + var(--space-10));
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--night-ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.vhs-rec .rec-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pink);
+  box-shadow: 0 0 10px 2px color-mix(in srgb, var(--pink) 70%, transparent);
+  animation: pulse 1.2s steps(1) infinite;
 }
 
 /* ---------- Nav ---------- */
@@ -160,34 +196,7 @@ nav .logo {
 }
 .nav-right { display: flex; align-items: center; gap: var(--space-6); }
 
-/* Botón de tema: se muestra la luna en claro (para ir a oscuro) y viceversa */
-.theme-toggle {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  background: none;
-  color: var(--ink);
-  cursor: pointer;
-  transition: border-color var(--dur-micro), color var(--dur-micro);
-}
-.theme-toggle:hover, .theme-toggle:focus-visible { border-color: var(--accent); color: var(--accent); outline: none; }
-.theme-toggle svg {
-  width: 17px;
-  height: 17px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-}
-.ic-sun { display: none; }
-:root[data-theme='dark'] .ic-sun { display: block; }
-:root[data-theme='dark'] .ic-moon { display: none; }
-nav.over-hero .theme-toggle { color: #fff; border-color: rgba(255, 255, 255, 0.3); }
-nav.over-hero .theme-toggle:hover { border-color: #fff; }
+/* (El botón de tema se retiró: sin modo claro, no hay nada que alternar.) */
 
 /* Reloj + ubicación en vivo (estilo Federico Pian) */
 .nav-clock {
@@ -270,6 +279,46 @@ section {
   min-width: 0;
 }
 
+/* Cortina (referencia voyeurverite): GSAP clava el hero (pin) y las secciones
+   del cuerpo se deslizan POR ENCIMA como una baraja. Para taparlo necesitan
+   fondo opaco y quedar sobre él en el orden de apilado (el hero, positioned,
+   pintaría encima de hermanos estáticos). Descendiente (no hijo directo):
+   el pin de GSAP envuelve al hero en un .pin-spacer. */
+main section:not(.hero) {
+  position: relative;
+  z-index: 1;
+  /* opacas (la cortina lo exige) pero con la MISMA retícula fija del body:
+     al compartir anclaje de viewport, la malla es continua entre capas */
+  background-color: var(--paper);
+  background-image: var(--grid-img);
+  background-size: var(--grid-size);
+  background-attachment: fixed;
+}
+/* Cielo estrellado UNIFORME en TODAS las secciones, hero incluido: glows
+   violeta/rosa + micro-estrellas en mosaico GRANDE (420px) con tamaños y
+   opacidades variados para que no se lea patrón. Es la MISMA capa en todas
+   (misma regla) y anclada al viewport (fixed), así el tono es continuo entre
+   cortinas. El hero suma además sus estrellas reales de Three.js.
+   z-index:-1 funciona porque la sección (z-index:1) ya es contexto de
+   apilado: el pseudo queda sobre el fondo y bajo el contenido. */
+main section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(700px circle at 80% 8%, color-mix(in srgb, var(--accent-bright) 15%, transparent), transparent 60%),
+    radial-gradient(560px circle at 8% 85%, color-mix(in srgb, var(--pink) 9%, transparent), transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cg fill='white'%3E%3Ccircle cx='23' cy='31' r='0.9' fill-opacity='0.5'/%3E%3Ccircle cx='198' cy='27' r='0.6' fill-opacity='0.3'/%3E%3Ccircle cx='330' cy='42' r='0.8' fill-opacity='0.45'/%3E%3Ccircle cx='211' cy='64' r='0.7' fill-opacity='0.35'/%3E%3Ccircle cx='89' cy='118' r='1.1' fill-opacity='0.6'/%3E%3Ccircle cx='391' cy='150' r='0.6' fill-opacity='0.3'/%3E%3Ccircle cx='162' cy='196' r='1.2' fill-opacity='0.65'/%3E%3Ccircle cx='47' cy='229' r='0.7' fill-opacity='0.4'/%3E%3Ccircle cx='272' cy='241' r='0.7' fill-opacity='0.35'/%3E%3Ccircle cx='378' cy='301' r='1' fill-opacity='0.55'/%3E%3Ccircle cx='120' cy='333' r='0.8' fill-opacity='0.4'/%3E%3Ccircle cx='232' cy='368' r='0.6' fill-opacity='0.3'/%3E%3Ccircle cx='26' cy='391' r='1' fill-opacity='0.5'/%3E%3Ccircle cx='317' cy='398' r='0.7' fill-opacity='0.4'/%3E%3C/g%3E%3C/svg%3E");
+  /* Anclado al viewport: la MISMA atmósfera pintada en la misma posición de
+     pantalla en cada sección (y en el hero). Al ser opacas las cortinas,
+     antes cada sección traía su propio brillo desfasado → bandas de tono.
+     Ahora es un cielo continuo. background-attachment va DESPUÉS del
+     shorthand (que lo resetea a scroll). */
+  background-repeat: no-repeat, no-repeat, repeat;
+  background-attachment: fixed;
+}
+
 /* ---------- Hero nocturno ----------
    align-self solo en .content: si se usara align-items en la sección,
    la celda del índice colapsaría y su borde no recorrería todo el hero.
@@ -280,35 +329,19 @@ section {
   position: relative;
   isolation: isolate;
   overflow: clip; /* confina el "999" y los glows al hero, sin romper el sticky del índice */
-  background: var(--night);
+  background-color: var(--night);
+  background-image: var(--grid-img); /* la misma retícula fija que el resto */
+  background-size: var(--grid-size);
+  background-attachment: fixed;
   color: var(--night-ink);
   border-bottom: none;
 }
-/* Glows violeta/rosa: el primero sigue al cursor (--mx/--my) */
-.hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    radial-gradient(650px circle at var(--mx, 50%) var(--my, 35%),
-      color-mix(in srgb, var(--accent-bright) 32%, transparent), transparent 60%),
-    radial-gradient(800px circle at 85% 10%,
-      color-mix(in srgb, var(--pink) 16%, transparent), transparent 55%),
-    radial-gradient(700px circle at 10% 90%,
-      color-mix(in srgb, var(--accent) 22%, transparent), transparent 55%);
-}
-/* Grano + desvanecido al papel en el borde inferior (transición al cuerpo claro) */
-.hero::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    linear-gradient(to bottom, transparent 82%, var(--paper) 100%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
-}
+/* (Los glows propios del hero se retiraron: ahora usa la MISMA atmósfera
+   compartida `main section::before` que el resto, para tono uniforme. El
+   halo que sigue al cursor sigue vivo globalmente en `.bg-fx`.) */
+/* (El grano propio del hero se retiró: el grano + scanlines globales de
+   `.bg-fx` ya cubren toda la página por igual. Tenerlo solo en hero/skills/
+   sobre-mí los hacía un pelín más oscuros → diferencia de tono.) */
 /* Canvas del planeta 3D: tras el contenido (z-index -1), sobre el color sólido */
 .hero-planet {
   position: absolute;
@@ -468,6 +501,46 @@ h2 {
   margin-bottom: var(--space-10);
 }
 
+/* ---------- Sobre mí: negro editorial (ref. Haogi × Off-White) ----------
+   Más negro que --night (contraste con hero y skills) y con retícula técnica
+   de fondo. Declaración gigante en mayúsculas, foto firmada, párrafo que se
+   apaga a gris y metadatos industriales con comillas y flechas. */
+main section#sobre-mi {
+  /* (sin background propio: hereda el negro + retícula global de section) */
+  color: var(--night-ink);
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+  isolation: isolate;
+  overflow: clip;
+}
+/* (Retícula y grano propios retirados: ahora son globales y fijos —malla en
+   el background, grano/scanlines en `.bg-fx`— iguales en toda la página.) */
+#sobre-mi .index { border-right-color: rgba(255, 255, 255, 0.08); }
+#sobre-mi .index span { color: rgba(255, 255, 255, 0.09); }
+/* Declaración gigante (el h2 ES el titular, estilo "I BRING CRAFT & TASTE") */
+#sobre-mi h2 {
+  font-weight: 700;
+  font-size: clamp(40px, 6.6vw, 104px);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  max-width: 18ch;
+  margin-bottom: var(--space-16);
+}
+
+/* Kicker industrial con comillas y flecha que bota (Off-White) */
+.ow-kicker {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent-bright);
+  margin-bottom: var(--space-6);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.ow-kicker .arrow { display: inline-block; animation: scrollBob 1.6s ease-in-out infinite; }
+
 /* ---------- Sobre mí ---------- */
 .about-grid {
   display: grid;
@@ -510,6 +583,37 @@ h2 {
   transition: filter var(--dur-lift) ease;
 }
 .about-photo:hover img { filter: grayscale(0) contrast(1.06) saturate(1.05); }
+#sobre-mi .about-photo { border-color: rgba(255, 255, 255, 0.14); }
+
+/* Firma manuscrita sobre la foto (como el "Haogi" de la referencia,
+   en violeta 999 en vez de verde). GSAP le da el pop de entrada. */
+.about-sign {
+  position: absolute;
+  top: 2px;
+  left: 8px;
+  z-index: 2;
+  font-family: 'Caveat', cursive;
+  font-size: clamp(46px, 5vw, 66px);
+  line-height: 1;
+  color: var(--accent-bright);
+  transform: rotate(-8deg);
+  text-shadow: 0 0 22px color-mix(in srgb, var(--accent-bright) 65%, transparent);
+  pointer-events: none;
+}
+/* Etiqueta industrial de la foto */
+.about-tag {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  z-index: 2;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
 
 /* ---------- Tilt 3D (proyectos, foto) ----------
    JS pone --rx/--ry al mover el cursor (gateado por hover, no por
@@ -522,14 +626,22 @@ h2 {
 }
 [data-tilt]:hover { transition-duration: 0.12s; }
 .about-grid p { color: var(--ink-soft); }
-/* Frase-gancho de "Sobre mí": grande, para enganchar al reclutador */
+/* Párrafo protagonista en blanco + continuación que se apaga a gris
+   (el patrón tipográfico de la referencia Haogi) */
 .about-lead {
   font-family: var(--display);
-  font-size: clamp(20px, 2.6vw, 27px);
-  line-height: 1.3;
+  font-size: clamp(22px, 2.9vw, 34px);
+  line-height: 1.28;
   font-weight: 500;
-  color: var(--ink) !important;
+  color: var(--night-ink) !important; /* gana a la regla .about-grid p */
   margin-bottom: var(--space-6);
+}
+.about-follow {
+  font-family: var(--display);
+  font-size: clamp(18px, 2.3vw, 27px);
+  line-height: 1.32;
+  font-weight: 400;
+  color: color-mix(in srgb, var(--night-ink-soft) 78%, transparent) !important;
 }
 /* Bandera a la izquierda (ragged right): el estándar del estilo suizo.
    En columnas estrechas el justificado abría "ríos" de espacio. */
@@ -548,26 +660,106 @@ h2 {
   font-size: 14px;
 }
 .fact-list .label { color: var(--gray); }
+/* Versión nocturna de la ficha (Sobre mí es de noche) */
+#sobre-mi .fact-list,
+#sobre-mi .fact-list li { border-color: rgba(255, 255, 255, 0.14); }
+#sobre-mi .fact-list .label { color: var(--night-ink-soft); }
+#sobre-mi .about-grid p { color: var(--night-ink-soft); }
+
+/* Pie industrial: rayas diagonales Off-White + coordenadas reales */
+.about-foot { margin-top: var(--space-16); }
+.ow-stripes {
+  display: block;
+  height: 8px;
+  margin-bottom: 14px;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.22) 0 7px,
+    transparent 7px 15px
+  );
+}
+.about-coords {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--night-ink-soft);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.about-coords .arrow { display: inline-block; animation: nudge 1.4s ease-in-out infinite; }
 
 /* ---------- Skills: anillo orbital con halo ---------- */
 .icon-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 .skills-intro { color: var(--gray); max-width: 520px; margin-bottom: var(--space-10); }
+
+/* Skills full-bleed nocturna: nada de "cuadro" incrustado (rompía la vista) —
+   la SECCIÓN entera es el cielo, como el hero. En la baraja de cortinas crea
+   un latido: claro (Sobre mí) → noche (Skills) → claro (Proyectos). */
+main section#skills {
+  /* (sin background propio: hereda el negro + retícula global de section) */
+  color: var(--night-ink);
+  border-bottom-color: rgba(255, 255, 255, 0.12); /* --line claro chillaría sobre noche */
+  isolation: isolate; /* los fondos z-index:-1 quedan tras el contenido */
+  overflow: clip;     /* confina la filigrana STACK sin romper el sticky */
+}
+/* (Glows y grano propios retirados: ahora la atmósfera es la regla compartida
+   `main section::before` y el grano/scanlines global de `.bg-fx`.) */
+#skills .index { border-right-color: rgba(255, 255, 255, 0.08); }
+#skills .index span { color: rgba(255, 255, 255, 0.09); }
+#skills .skills-intro { color: var(--night-ink-soft); }
+/* Filigrana "STACK" (hermana del 999 del hero): masa tipográfica de fondo */
+.skills-999 {
+  position: absolute;
+  top: 7vh;
+  right: 3vw;
+  z-index: -1;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(90px, 15vw, 230px);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.06);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Contenedor de la constelación (ya sin caja: solo ancla el índice 01/09) */
+.constel-sky {
+  position: relative;
+  max-width: 1040px;
+  margin: 0 auto var(--space-10);
+}
+/* Índice editorial de la skill activa (01 / 09) */
+.constel-count {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--accent-bright);
+  font-variant-numeric: tabular-nums;
+}
 
 /* Constelación: logos dispersos unidos por líneas; el plano se inclina con el cursor
    (data-tilt). Nodos y líneas viven en el MISMO plano, así nunca se desalinean. */
 .constel {
   position: relative;
   width: 100%;
-  max-width: 860px;
-  aspect-ratio: 16 / 10;
-  margin: 0 auto var(--space-8);
+  max-width: 1000px;
+  aspect-ratio: 16 / 9;
+  margin: 0 auto var(--space-4);
   perspective: 900px; /* profundidad real: los nodos con --z hacen parallax */
 }
 /* Capa de líneas: en espacio de pantalla (fuera del plano 3D). El JS pone las
    coordenadas en px hacia el centro proyectado de cada nodo. */
 .constel-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .constel-lines line {
-  stroke: color-mix(in srgb, var(--accent) 38%, transparent);
+  /* sobre el cielo nocturno las líneas pueden brillar más */
+  stroke: color-mix(in srgb, var(--accent-bright) 55%, transparent);
   stroke-width: 1;
 }
 /* El plano que se inclina (JS pone --rx/--ry) */
@@ -587,8 +779,9 @@ h2 {
   place-items: center;
   padding: 0;
   border-radius: 50%;
-  background: var(--paper);
-  border: 1px solid var(--line);
+  /* fijos (no tokens): el panel es nocturno en ambos temas */
+  background: #FBFAF7;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   cursor: pointer;
   transform-style: preserve-3d;
   /* --z: cada nodo flota a distinta altura → parallax al inclinar el plano */
@@ -600,7 +793,7 @@ h2 {
 .constel-node:hover,
 .constel-node:focus-visible,
 .constel-node.is-active {
-  border-color: var(--accent);
+  border-color: var(--accent-bright);
   box-shadow:
     0 0 0 6px color-mix(in srgb, var(--accent-bright) 16%, transparent),
     0 0 46px -4px color-mix(in srgb, var(--accent-bright) 70%, transparent);
@@ -618,17 +811,25 @@ h2 {
   font-size: 10px;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--gray);
+  color: var(--night-ink-soft);
   white-space: nowrap;
   transition: color var(--dur-micro);
 }
 .constel-node:hover .constel-label,
-.constel-node.is-active .constel-label { color: var(--accent); }
+.constel-node.is-active .constel-label { color: var(--accent-bright); }
 
-/* Info de la tecnología activa, bajo la constelación */
-.constel-info { max-width: 560px; margin: 0 auto var(--space-12); text-align: center; }
-.constel-name { font-family: var(--display); font-size: clamp(20px, 2.6vw, 26px); font-weight: 500; margin-bottom: 8px; }
-.constel-desc { color: var(--ink-soft); font-size: 15px; line-height: 1.5; }
+/* Skill activa: titular protagonista dentro del cielo (antes era un
+   cuadrito centrado de 26px que no pesaba nada) */
+.constel-info { margin: var(--space-4) 0 0; text-align: left; }
+.constel-name {
+  font-family: var(--display);
+  font-size: clamp(34px, 4.8vw, 58px);
+  font-weight: 700;
+  line-height: 1.02;
+  color: var(--night-ink);
+  margin-bottom: 8px;
+}
+.constel-desc { color: var(--night-ink-soft); font-size: 15px; line-height: 1.5; max-width: 52ch; }
 
 /* "También trabajo con": capacidades sin logo, en píldoras */
 .skills-more { max-width: 760px; margin: 0 auto; text-align: center; }
@@ -659,6 +860,10 @@ h2 {
   transition: border-color var(--dur-micro), color var(--dur-micro);
 }
 .skills-more-list li:hover { border-color: var(--accent); color: var(--accent); }
+/* Versión nocturna de las píldoras (la sección Skills es de noche) */
+#skills .skills-more-label { color: var(--night-ink-soft); }
+#skills .skills-more-list li { color: var(--night-ink-soft); border-color: rgba(255, 255, 255, 0.18); }
+#skills .skills-more-list li:hover { color: var(--accent-bright); border-color: var(--accent-bright); }
 
 /* ---------- Proyectos: galería horizontal 3D ---------- */
 .proj-head {
@@ -724,7 +929,7 @@ h2 {
   text-decoration: none;
   color: inherit;
   border: 1px solid var(--line);
-  background: var(--paper);
+  background: var(--night-soft); /* tarjeta un paso más clara que el cielo */
   overflow: hidden;
   transform-style: preserve-3d;
   transition: box-shadow var(--dur-lift) ease, border-color var(--dur-micro),
@@ -806,14 +1011,14 @@ h2 {
 .proj-cta .arrow { display: inline-block; transition: transform var(--dur-micro) ease; }
 .proj-panel:hover .proj-cta .arrow { transform: translateX(6px); }
 
-/* Panel final: CTA oscuro a GitHub */
+/* Panel final: CTA a GitHub — borde discontinuo técnico (Off-White) */
 .proj-panel--more {
   align-items: center;
   justify-content: center;
   text-align: center;
-  background: var(--night);
+  background: var(--night-soft);
   color: var(--night-ink);
-  border-color: transparent;
+  border: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent);
 }
 .proj-panel--more .proj-desc { color: var(--night-ink-soft); max-width: 32ch; }
 .proj-more-inner {
@@ -864,69 +1069,127 @@ h2 {
 .tl-desc { color: var(--ink-soft); font-size: 15px; margin-top: 10px; max-width: 60ch; }
 .tl-item--edu .tl-role { font-size: 18px; }
 
-/* ---------- Contacto ---------- */
+/* ---------- Contacto: CTA directo (fuera el marquee "Hablemos") ----------
+   Statement gigante con glitch + email visible como enlace + copiar al
+   portapapeles + filas industriales de redes + ticker VHS de cierre. */
 .contact .content {
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
 }
-.social {
-  display: flex;
-  gap: 28px;
-  font-size: 14px;
-}
-.social a {
-  color: var(--gray);
-  text-decoration: none;
-  /* subrayado animado: un gradiente de 0 de ancho que crece al hover */
-  background: linear-gradient(currentColor, currentColor) left bottom / 0 1px no-repeat;
-  padding-bottom: 2px;
-  transition: color var(--dur-micro), background-size var(--dur-micro) ease;
-}
-.social a:hover, .social a:focus-visible {
-  color: var(--ink);
-  background-size: 100% 1px;
-}
-
-/* ---------- Marquee (Contacto): la cinta ES el mailto ---------- */
-.marquee {
-  display: block;
-  overflow: hidden;
-  min-width: 0; /* mismo motivo: como flex item, que pueda encogerse */
-  /* sangra hasta los bordes del área de contenido */
-  margin: 0 calc(-1 * var(--space-10));
-  text-decoration: none;
-  cursor: pointer;
-}
-/* Al pasar el cursor (o enfocar con teclado): la cinta se pausa y se
-   rellena de acento — señal inequívoca de que es accionable */
-.marquee:hover .marquee-track,
-.marquee:focus-visible .marquee-track {
-  animation-play-state: paused;
-}
-.marquee:hover .marquee-track span,
-.marquee:focus-visible .marquee-track span {
-  color: var(--accent);
-  -webkit-text-stroke: 1px var(--accent);
-}
-.marquee-track {
-  display: inline-flex;
-  white-space: nowrap;
-  animation: marquee 36s linear infinite;
-}
-.marquee-track span {
-  font-family: var(--display);
+#contacto h2 {
   font-weight: 700;
-  font-size: clamp(48px, 8vw, 110px);
+  font-size: clamp(44px, 8.5vw, 130px);
+  line-height: 0.95;
   letter-spacing: -0.03em;
   text-transform: uppercase;
-  line-height: 1.1;
-  color: transparent;
-  -webkit-text-stroke: 1px var(--gray); /* texto en contorno, editorial */
-  transition: color var(--dur-micro), -webkit-text-stroke var(--dur-micro);
+  max-width: 12ch;
+  margin-bottom: var(--space-4);
+  animation: vhsGlitch 8s steps(1) infinite;
+}
+/* Email gigante: el CTA real, subrayado en acento */
+.contact-cta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  flex-wrap: wrap;
+}
+.contact-mail {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  font-family: var(--display);
+  font-size: clamp(19px, 3.4vw, 42px);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--night-ink);
+  text-decoration: none;
+  border-bottom: 2px solid var(--accent-bright);
+  padding-bottom: 6px;
+  transition: color var(--dur-micro);
+}
+.contact-mail:hover, .contact-mail:focus-visible { color: var(--accent); }
+.contact-mail .arrow { display: inline-block; transition: transform var(--dur-micro) ease; }
+.contact-mail:hover .arrow { transform: translate(4px, -4px); }
+/* Botón copiar: píldora técnica discontinua (Off-White) */
+.contact-copy {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--night-ink-soft);
+  background: none;
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: color var(--dur-micro), border-color var(--dur-micro);
+}
+.contact-copy:hover, .contact-copy:focus-visible { color: var(--accent); border-color: var(--accent); outline: none; }
+.contact-copy.is-copied { color: var(--accent); border-color: var(--accent); border-style: solid; }
+/* Redes como filas industriales con handle y flecha */
+.contact-links {
+  list-style: none;
+  max-width: 760px;
+  border-top: 1px solid var(--line);
+}
+.contact-links a {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+  color: var(--night-ink);
+  font-family: var(--display);
+  font-size: clamp(18px, 2.2vw, 24px);
+  font-weight: 500;
+  transition: color var(--dur-micro);
+}
+.contact-links .handle {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--night-ink-soft);
+}
+.contact-links .arrow { display: inline-block; transition: transform var(--dur-micro) ease; }
+.contact-links a:hover, .contact-links a:focus-visible { color: var(--accent); }
+.contact-links a:hover .arrow { transform: translate(4px, -4px); }
+/* Cierre VHS: ticker fino con datos reales + rebobinar */
+.contact-foot { margin-top: var(--space-4); }
+.contact-ticker {
+  overflow: hidden;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 10px 0;
+  margin-bottom: 14px;
+}
+.ticker-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marquee 30s linear infinite;
+}
+.ticker-track span {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--night-ink-soft);
 }
 /* dos spans idénticos: al llegar a -50% el segundo ocupa el lugar del primero */
 @keyframes marquee { to { transform: translateX(-50%); } }
+.contact-rewind {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--night-ink-soft);
+  text-decoration: none;
+  transition: color var(--dur-micro);
+}
+.contact-rewind:hover, .contact-rewind:focus-visible { color: var(--accent); }
 
 /* ---------- Detalle de proyecto (overlay: info fija + capturas verticales) ---------- */
 .pdetail {
@@ -1068,6 +1331,21 @@ footer {
    (opacity 0, y+24) los pone GSAP en js/main.js justo antes de animar.
    Si GSAP no carga, la página se ve completa, solo sin animaciones. */
 
+/* Titulares divididos (SplitText casero, en main.js): cada palabra es una
+   máscara y cada carácter sube desde abajo. Sin JS, .split no existe y el
+   titular queda intacto. vertical-align:bottom: un inline-block con overflow
+   hidden cambia su baseline al borde inferior; alinear por abajo evita que
+   las palabras "floten" respecto a los espacios. */
+.split .w { display: inline-block; overflow: hidden; vertical-align: bottom; }
+.split .c { display: inline-block; will-change: transform; }
+
+/* Parallax de scroll (scrub): GSAP anima la `y` del WRAPPER .plx, nunca la
+   del contenido. Si compartieran elemento, el transform inline de GSAP
+   pisaría el del tilt 3D (y GSAP además resetea `translate` a none, así que
+   la propiedad independiente tampoco sirve). display:grid: el hijo estira
+   a la celda única y hereda el tamaño que le daría el layout de fuera. */
+.plx { display: grid; }
+
 /* ---------- Responsive (breakpoint 720px) ---------- */
 @media (max-width: 720px) {
   section { grid-template-columns: 48px 1fr; }
@@ -1084,6 +1362,9 @@ footer {
   }
   .proj-gallery .proj-panel--more { grid-column: auto; min-height: 0; }
   .proj-panel { flex: 0 0 86vw; scroll-snap-align: center; }
+  /* Los wrappers de parallax son los flex items reales del carrusel; el
+     snap-align sigue en el panel (vale en cualquier descendiente del scroller) */
+  .proj-gallery > .plx { flex: 0 0 86vw; }
   .proj-meta { display: flex; }
   .tech-grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
   /* Timeline: el año se apila encima del cargo */
@@ -1098,12 +1379,17 @@ footer {
   /* izquierda = riel (48px) + padding de contenido (20px) */
   footer { padding: 16px 20px 16px 68px; }
   .index span { font-size: 26px; top: 72px; }
-  .marquee { margin: 0 -20px; }
+  /* En móvil el handle de las filas de contacto se apila bajo el nombre */
+  .contact-links a { flex-wrap: wrap; }
+  .contact-links .handle { margin-left: 0; width: 100%; order: 3; }
   /* En móvil el meta industrial estorba junto al nav; el 999 se ancla más arriba */
   .hero-meta { display: none; }
   .hero-999 { top: 9vh; left: 6vw; }
+  .vhs-rec { left: 68px; } /* riel 48px + padding 20px */
   .about-photo { max-width: 280px; }
   /* Constelación compacta en móvil: nodos más chicos y sin etiquetas (se encimarían) */
+  .constel-count { font-size: 11px; }
+  .skills-999 { top: 4vh; right: 4vw; }
   .constel { aspect-ratio: 1 / 1; }
   .constel-node { width: 44px; height: 44px; }
   .constel-node img { width: 22px; height: 22px; }

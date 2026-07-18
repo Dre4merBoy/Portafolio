@@ -1,6 +1,9 @@
 /* =====================================================================
-   Planeta 3D del hero — estética cosmos Juice WRLD (999).
-   Three.js (global THREE, build UMD r128). IIFE, sin módulos.
+   Esfera de partículas del hero — cosmos Juice WRLD (999).
+   Sustituye al planeta sólido: miles de puntos violetas repartidos sobre
+   una esfera que respira (shader), gira y se inclina hacia el cursor,
+   unida por líneas tenues tipo constelación — el mismo lenguaje visual
+   que la sección Skills. Three.js (global THREE, UMD r128). IIFE.
 
    Robustez:
    - Si no hay WebGL o no cargó THREE → return; el glow CSS del hero queda
@@ -31,8 +34,8 @@
   }
 
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !isMobile });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2));
-  if ('outputEncoding' in renderer) renderer.outputEncoding = THREE.sRGBEncoding;
+  const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
+  renderer.setPixelRatio(dpr);
   let { w, h } = size();
   renderer.setSize(w, h, false);
 
@@ -40,132 +43,156 @@
   const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
   camera.position.set(0, 0, 6);
 
-  // Grupo para inclinar el eje del planeta
-  const planetGroup = new THREE.Group();
-  planetGroup.position.set(isMobile ? 0 : 1.6, isMobile ? 1.4 : 0.6, 0);
-  planetGroup.rotation.z = 0.35;
-  scene.add(planetGroup);
+  /* Jerarquía: group (posición + inclinación hacia el cursor) > spin (giro
+     continuo en Y). Así el giro y la inclinación no se pisan entre sí. */
+  const group = new THREE.Group();
+  scene.add(group);
+  const spin = new THREE.Group();
+  spin.rotation.z = 0.18; // eje ligeramente inclinado, como un astro real
+  group.add(spin);
 
-  /* --- Textura procedural: nebulosa de gas (violeta/magenta/cian) --- */
-  function nebulaTexture() {
-    const c = document.createElement('canvas');
-    c.width = 1024; c.height = 512;
-    const ctx = c.getContext('2d');
-    ctx.fillStyle = '#160a2e'; // base violeta oscuro
-    ctx.fillRect(0, 0, c.width, c.height);
-    const cols = ['#2b0f54', '#6d28d9', '#8b5cf6', '#db2777', '#22d3ee', '#3b0764'];
-    for (let i = 0; i < 90; i++) {
-      const x = Math.random() * c.width;
-      const y = Math.random() * c.height;
-      const r = 40 + Math.random() * 220;
-      const col = cols[(Math.random() * cols.length) | 0];
-      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-      g.addColorStop(0, col);
-      g.addColorStop(1, 'transparent');
-      ctx.globalAlpha = 0.18 + Math.random() * 0.35;
-      ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+  const R = 1.85;
+
+  /* La esfera SIEMPRE completa en el encuadre: se calcula cuánto mundo se ve
+     a la distancia de la cámara y se ajustan posición (y escala si ni
+     centrada cabe, p. ej. móvil angosto) para que nunca la recorte el hero.
+     El margen cubre la respiración del shader y el vaivén de la cámara. */
+  function fit() {
+    const mobileNow = window.innerWidth < 900;
+    const visH = 2 * camera.position.z * Math.tan((camera.fov * Math.PI) / 360);
+    const visW = visH * (w / h);
+    const margin = R * 1.24;
+    const s = Math.min(1, Math.max(0.4, (Math.min(visW, visH) / 2) / margin));
+    group.scale.setScalar(s);
+    const m = margin * s;
+    let px = mobileNow ? 0 : 1.6;
+    let py = mobileNow ? 1.1 : 0.55;
+    px = Math.sign(px || 1) * Math.min(Math.abs(px), Math.max(0, visW / 2 - m));
+    py = Math.sign(py || 1) * Math.min(Math.abs(py), Math.max(0, visH / 2 - m));
+    group.position.set(px, py, 0);
+  }
+  fit();
+
+  /* --- Nube de partículas sobre la esfera --- */
+  const COUNT = isMobile ? 2200 : 4200;
+  const pos = new Float32Array(COUNT * 3);
+  const col = new Float32Array(COUNT * 3);
+  const phase = new Float32Array(COUNT);
+  const psize = new Float32Array(COUNT);
+
+  // Paleta 999 ponderada: violeta dominante, lavanda, toques rosa y cian
+  const palette = [
+    ['#8b5cf6', 0.55], ['#c4b5fd', 0.25], ['#db2777', 0.12], ['#22d3ee', 0.08],
+  ].map(([hex, wgt]) => [new THREE.Color(hex), wgt]);
+  function pickColor() {
+    let r = Math.random(), acc = 0;
+    for (let i = 0; i < palette.length; i++) {
+      acc += palette[i][1];
+      if (r <= acc) return palette[i][0];
     }
-    ctx.globalAlpha = 1;
-    const tex = new THREE.CanvasTexture(c);
-    if ('encoding' in tex) tex.encoding = THREE.sRGBEncoding;
-    return tex;
+    return palette[0][0];
+  }
+  // Punto uniforme sobre la esfera (rechazo: normalizar un punto del cubo
+  // sesgaría hacia las diagonales)
+  function onSphere() {
+    let x, y, z, l;
+    do {
+      x = Math.random() * 2 - 1; y = Math.random() * 2 - 1; z = Math.random() * 2 - 1;
+      l = x * x + y * y + z * z;
+    } while (l > 1 || l < 1e-4);
+    l = Math.sqrt(l);
+    return [x / l, y / l, z / l];
   }
 
-  const detail = isMobile ? 48 : 96;
-  const planet = new THREE.Mesh(
-    new THREE.SphereGeometry(1.6, detail, detail),
-    new THREE.MeshStandardMaterial({
-      map: nebulaTexture(),
-      emissive: new THREE.Color('#3a1d6e'),
-      emissiveIntensity: 0.55,
-      roughness: 0.85,
-      metalness: 0.1,
-    })
-  );
-  planetGroup.add(planet);
+  for (let i = 0; i < COUNT; i++) {
+    const p = onSphere();
+    const r = R * (0.99 + Math.random() * 0.05); // corteza fina, no bola difusa
+    pos[i * 3] = p[0] * r; pos[i * 3 + 1] = p[1] * r; pos[i * 3 + 2] = p[2] * r;
+    const c = pickColor();
+    col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+    phase[i] = Math.random() * Math.PI * 2;
+    psize[i] = 0.9 + Math.random() * 2.1;
+  }
 
-  /* --- Atmósfera: fresnel additive (rim glow violeta) --- */
-  const atmosphere = new THREE.Mesh(
-    new THREE.SphereGeometry(1.6, detail, detail),
-    new THREE.ShaderMaterial({
-      transparent: true,
-      side: THREE.BackSide,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-      uniforms: { uColor: { value: new THREE.Color('#8b5cf6') } },
-      vertexShader:
-        'varying vec3 vN; varying vec3 vP;' +
-        'void main(){ vN = normalize(normalMatrix * normal);' +
-        'vec4 mv = modelViewMatrix * vec4(position,1.0); vP = mv.xyz;' +
-        'gl_Position = projectionMatrix * mv; }',
-      fragmentShader:
-        'varying vec3 vN; varying vec3 vP; uniform vec3 uColor;' +
-        'void main(){ vec3 v = normalize(-vP);' +
-        'float f = pow(1.0 - max(dot(v, vN), 0.0), 2.6);' +
-        'gl_FragColor = vec4(uColor, f); }',
-    })
-  );
-  atmosphere.scale.setScalar(1.22);
-  planetGroup.add(atmosphere);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('aColor', new THREE.BufferAttribute(col, 3));
+  geo.setAttribute('aPhase', new THREE.BufferAttribute(phase, 1));
+  geo.setAttribute('aSize', new THREE.BufferAttribute(psize, 1));
 
-  /* --- Anillo tipo Saturno (violeta, additive glow) --- */
-  const ring = new THREE.Mesh(
-    new THREE.RingGeometry(2.15, 3.15, 96),
-    new THREE.MeshBasicMaterial({
-      color: 0xb98bff,
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.3,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    })
-  );
-  ring.rotation.x = Math.PI * 0.62;
-  ring.rotation.y = 0.15;
-  planetGroup.add(ring);
-
-  /* --- Lunas en órbita: dan compañía al planeta --- */
-  const moons = [];
-  [
-    { r: 2.9, s: 0.17, c: 0x8b5cf6, sp: 0.011, y: 0.35 },
-    { r: 3.7, s: 0.12, c: 0x22d3ee, sp: -0.007, y: -0.8 },
-  ].forEach((m) => {
-    const mesh = new THREE.Mesh(
-      new THREE.SphereGeometry(m.s, 24, 24),
-      new THREE.MeshStandardMaterial({
-        color: m.c, emissive: m.c, emissiveIntensity: 0.6, roughness: 0.6,
-      })
-    );
-    mesh.userData = { angle: Math.random() * Math.PI * 2, r: m.r, sp: m.sp, y: m.y };
-    planetGroup.add(mesh);
-    moons.push(mesh);
+  /* Shader propio: la esfera "respira" (radio ± seno por partícula) y cada
+     punto titila — todo en GPU, sin tocar los buffers por frame. */
+  const mat = new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    uniforms: {
+      uTime: { value: 0 },
+      uScale: { value: dpr },
+    },
+    vertexShader:
+      'uniform float uTime; uniform float uScale;' +
+      'attribute float aPhase; attribute float aSize; attribute vec3 aColor;' +
+      'varying vec3 vColor; varying float vTw;' +
+      'void main(){' +
+      '  vColor = aColor;' +
+      '  vTw = 0.62 + 0.38 * sin(uTime * 1.6 + aPhase * 7.0);' + // titileo
+      '  vec3 p = position * (1.0 + 0.035 * sin(uTime * 0.7 + aPhase));' + // respiración
+      '  vec4 mv = modelViewMatrix * vec4(p, 1.0);' +
+      '  gl_PointSize = aSize * uScale * (6.0 / -mv.z);' + // atenuación por distancia
+      '  gl_Position = projectionMatrix * mv;' +
+      '}',
+    fragmentShader:
+      'precision mediump float;' +
+      'varying vec3 vColor; varying float vTw;' +
+      'void main(){' +
+      '  float d = length(gl_PointCoord - 0.5);' +
+      '  float a = smoothstep(0.5, 0.14, d) * vTw;' + // disco suave, no cuadrado
+      '  if (a < 0.02) discard;' +
+      '  gl_FragColor = vec4(vColor, a);' +
+      '}',
   });
+  spin.add(new THREE.Points(geo, mat));
 
-  /* --- Luces de color (paleta 999) --- */
-  scene.add(new THREE.AmbientLight(0x241a3a, 0.9));
-  const l1 = new THREE.PointLight(0x8b5cf6, 1.4, 40); l1.position.set(6, 4, 6); scene.add(l1);
-  const l2 = new THREE.PointLight(0xdb2777, 1.1, 40); l2.position.set(-6, -2, 4); scene.add(l2);
-  const l3 = new THREE.PointLight(0x22d3ee, 0.7, 40); l3.position.set(-2, 5, -5); scene.add(l3);
-
-  /* --- Estrellas de fondo (puntos) --- */
-  const starGeo = new THREE.BufferGeometry();
-  const N = isMobile ? 260 : 600;
-  const pos = new Float32Array(N * 3);
-  for (let i = 0; i < N; i++) {
-    pos[i * 3] = (Math.random() - 0.5) * 40;
-    pos[i * 3 + 1] = (Math.random() - 0.5) * 24;
-    pos[i * 3 + 2] = -6 - Math.random() * 20;
+  /* --- Líneas de constelación: nodos Fibonacci sobre la misma esfera,
+     unidos con sus vecinos cercanos (máx 3 por nodo). Geometría estática
+     que gira con la nube. --- */
+  const NODES = isMobile ? 70 : 110;
+  const nodePts = [];
+  const GA = Math.PI * (3 - Math.sqrt(5)); // ángulo áureo
+  for (let i = 0; i < NODES; i++) {
+    const y = 1 - (i + 0.5) * (2 / NODES);
+    const rad = Math.sqrt(1 - y * y);
+    const th = i * GA;
+    nodePts.push(new THREE.Vector3(Math.cos(th) * rad * R, y * R, Math.sin(th) * rad * R));
   }
-  starGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  const stars = new THREE.Points(
-    starGeo,
-    new THREE.PointsMaterial({ color: 0xcbb7ff, size: 0.06, transparent: true, opacity: 0.8 })
-  );
-  scene.add(stars);
+  const linePos = [];
+  const linkCount = new Array(NODES).fill(0);
+  const MAXD = R * 0.46; // umbral de vecindad (~2-3 enlaces por nodo)
+  for (let i = 0; i < NODES; i++) {
+    for (let j = i + 1; j < NODES; j++) {
+      if (linkCount[i] >= 3 || linkCount[j] >= 3) continue;
+      if (nodePts[i].distanceTo(nodePts[j]) < MAXD) {
+        linePos.push(nodePts[i].x, nodePts[i].y, nodePts[i].z, nodePts[j].x, nodePts[j].y, nodePts[j].z);
+        linkCount[i]++; linkCount[j]++;
+      }
+    }
+  }
+  const lineGeo = new THREE.BufferGeometry();
+  lineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(linePos), 3));
+  spin.add(new THREE.LineSegments(
+    lineGeo,
+    new THREE.LineBasicMaterial({
+      color: 0x8b5cf6,
+      transparent: true,
+      opacity: 0.16,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    })
+  ));
 
-  /* --- Nebulosas lejanas en movimiento (sprites additive que derivan) --- */
-  function nebulaTex(inner) {
+  /* --- Núcleo: glow violeta en el centro (sprite radial additive) --- */
+  function glowTex(inner) {
     const c = document.createElement('canvas');
     c.width = c.height = 256;
     const x = c.getContext('2d');
@@ -177,15 +204,42 @@
     x.fillRect(0, 0, 256, 256);
     return new THREE.CanvasTexture(c);
   }
+  const core = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: glowTex('rgba(139,92,246,0.8)'),
+    blending: THREE.AdditiveBlending,
+    transparent: true,
+    depthWrite: false,
+    opacity: 0.5,
+  }));
+  core.scale.set(6, 6, 1);
+  group.add(core);
+
+  /* --- Estrellas de fondo (puntos) --- */
+  const starGeo = new THREE.BufferGeometry();
+  const N = isMobile ? 260 : 600;
+  const spos = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) {
+    spos[i * 3] = (Math.random() - 0.5) * 40;
+    spos[i * 3 + 1] = (Math.random() - 0.5) * 24;
+    spos[i * 3 + 2] = -6 - Math.random() * 20;
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(spos, 3));
+  const stars = new THREE.Points(
+    starGeo,
+    new THREE.PointsMaterial({ color: 0xcbb7ff, size: 0.06, transparent: true, opacity: 0.8 })
+  );
+  scene.add(stars);
+
+  /* --- Nebulosas lejanas en movimiento (sprites additive que derivan) --- */
   const nebulas = [];
   const nebColors = [
     'rgba(139,92,246,0.55)', 'rgba(219,39,119,0.45)',
     'rgba(34,211,238,0.35)', 'rgba(124,58,237,0.5)',
     isMobile ? null : 'rgba(219,39,119,0.3)',
   ].filter(Boolean);
-  nebColors.forEach((col) => {
+  nebColors.forEach((colr) => {
     const sp = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: nebulaTex(col),
+      map: glowTex(colr),
       blending: THREE.AdditiveBlending,
       transparent: true,
       depthWrite: false,
@@ -199,7 +253,7 @@
     nebulas.push(sp);
   });
 
-  /* --- Parallax suave con el cursor --- */
+  /* --- Parallax e inclinación con el cursor --- */
   let tx = 0, ty = 0;
   if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
     window.addEventListener('pointermove', (e) => {
@@ -217,16 +271,14 @@
 
   function loop() {
     if (!running) return;
-    planet.rotation.y += reduced ? 0.0008 : 0.0022;
-    atmosphere.rotation.y = planet.rotation.y;
-    ring.rotation.z += 0.0006;
+    const t = performance.now() * 0.001;
+    mat.uniforms.uTime.value = t;
+    // giro continuo; el cursor a la derecha lo acelera un poco (y viceversa)
+    spin.rotation.y += (reduced ? 0.0007 : 0.0018) + tx * 0.0012;
+    // la esfera se inclina suavemente hacia el cursor
+    group.rotation.x += (ty * 0.55 - group.rotation.x) * 0.04;
     stars.rotation.y += 0.0003;
-    moons.forEach((mo) => {
-      const d = mo.userData;
-      d.angle += d.sp;
-      mo.position.set(Math.cos(d.angle) * d.r, d.y, Math.sin(d.angle) * d.r);
-    });
-    const tt = performance.now() * 0.0001;
+    const tt = t * 0.1;
     nebulas.forEach((n) => {
       n.position.x = n.userData.baseX + Math.sin(tt + n.userData.phase) * 2.6;
       n.material.rotation += 0.0002;
@@ -244,7 +296,6 @@
     const s = size(); w = s.w; h = s.h;
     camera.aspect = w / h; camera.updateProjectionMatrix();
     renderer.setSize(w, h, false);
-    planetGroup.position.x = (window.innerWidth < 900) ? 0 : 1.6;
-    planetGroup.position.y = (window.innerWidth < 900) ? 1.4 : 0.6;
+    fit();
   }, { passive: true });
 })();

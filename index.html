@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Luis Contreras — Desarrollador Web · Soporte TI y Redes</title>
-  <meta name="description" content="Portafolio de Luis Contreras, desarrollador web y soporte TI en Monterrey. Proyectos: Portal DEV UAMM y SALMAS by CJ." />
+  <meta name="description" content="Portafolio de Luis Contreras, desarrollador web y soporte TI en Nuevo León, México. Proyectos: Portal DEV UAMM y SALMAS by CJ." />
   <meta name="author" content="Luis Edgar Contreras Juárez" />
 
   <!-- Open Graph (se completa en Fase 5: imagen, url) -->
@@ -14,19 +14,12 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <!-- Caveat: solo para la firma manuscrita de "Sobre mí" -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&family=Caveat:wght@600&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="css/styles.css" />
 
-  <!-- Aplica el tema ANTES de pintar: evita el destello de modo claro al cargar
-       en oscuro. Va inline y sin defer a propósito. -->
-  <script>
-    try {
-      var t = localStorage.getItem('tema') ||
-        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', t);
-    } catch (e) {}
-  </script>
+  <!-- (Sin script de tema: el sitio es nocturno siempre desde el giro VHS) -->
 </head>
 <body>
 
@@ -47,7 +40,7 @@
 
   <nav>
     <span class="logo">LC</span>
-    <span class="nav-clock" data-clock aria-hidden="true">San Nicolás&nbsp;·&nbsp;--:--</span>
+    <span class="nav-clock" data-clock aria-hidden="true">Nuevo León&nbsp;·&nbsp;--:--</span>
     <div class="nav-right">
       <ul>
         <li class="nav-secondary"><a href="#sobre-mi">Sobre mí</a></li>
@@ -55,12 +48,7 @@
         <li><a href="#proyectos">Proyectos</a></li>
         <li><a href="#contacto">Contacto</a></li>
       </ul>
-      <button type="button" class="theme-toggle" data-theme-toggle aria-label="Cambiar a modo oscuro">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <g class="ic-sun"><circle cx="12" cy="12" r="4.2" /><path d="M12 2.6v2.2M12 19.2v2.2M4.6 12H2.4M21.6 12h-2.2M6.5 6.5 5 5M19 19l-1.5-1.5M17.5 6.5 19 5M5 19l1.5-1.5" /></g>
-          <path class="ic-moon" d="M20.2 14.3A8.3 8.3 0 0 1 9.7 3.8a8.5 8.5 0 1 0 10.5 10.5Z" />
-        </svg>
-      </button>
+      <!-- (Sin toggle de tema: el sitio es nocturno siempre, giro VHS) -->
     </div>
     <span class="nav-progress" aria-hidden="true"></span>
   </nav>
@@ -72,8 +60,9 @@
       <div class="index"><span>01</span></div>
       <span class="hero-999" aria-hidden="true">999</span>
       <span class="hero-meta" aria-hidden="true">"Portafolio" — MX ©2026</span>
+      <span class="vhs-rec" aria-hidden="true"><span class="rec-dot"></span>REC&nbsp;<span data-vhs-timer>00:00:00</span></span>
       <div class="content">
-        <p class="eyebrow">San Nicolás de los Garza, Nuevo León · MX</p>
+        <p class="eyebrow">Nuevo León, México</p>
         <p class="hero-code" aria-label="Luis Contreras, desarrollador web y soporte TI">
           <span class="tok-key">const</span> <span class="tok-var">dev</span> <span class="tok-op">=</span> <span class="tok-str">"</span><span class="tok-str hero-name" data-name="Luis Contreras"></span><span class="caret" aria-hidden="true"></span><span class="tok-str">"</span>
         </p>
@@ -83,39 +72,57 @@
       <a class="scroll-hint" href="#sobre-mi" aria-label="Bajar al contenido"><span>scroll</span><span class="scroll-arrow" aria-hidden="true">↓</span></a>
     </section>
 
-    <!-- 02 · Sobre mí -->
+    <!-- 02 · Sobre mí — negro editorial (ref. Haogi × Off-White): declaración
+         gigante, foto con firma manuscrita, párrafo grande que se apaga a gris
+         y metadatos industriales. El MISMO contenido aprobado, recolocado. -->
     <section id="sobre-mi">
       <div class="index"><span>02</span></div>
       <div class="content">
-        <h2 class="reveal">Sobre mí</h2>
+        <p class="ow-kicker reveal">"Sobre&nbsp;mí" — TRK&nbsp;02 <span class="arrow" aria-hidden="true">↓</span></p>
+        <h2 class="reveal">Entiendo toda la cadena: del servidor al pixel.</h2>
         <div class="about-grid">
+          <!-- .plx: wrapper de parallax. GSAP anima el wrapper y el tilt/reveal
+               viven en la figura: si compartieran elemento, el transform inline
+               de GSAP pisaría al del tilt. -->
+          <div class="plx" data-plx="30">
           <figure class="about-photo reveal" data-tilt>
             <img src="assets/luis.jpg" alt="Retrato de Luis Contreras" width="900" height="1120" loading="lazy" onerror="this.remove()" />
+            <span class="about-sign" aria-hidden="true">Luis</span>
+            <span class="about-tag" aria-hidden="true">"Retrato" — MX</span>
           </figure>
+          </div>
           <div class="about-body">
             <div class="reveal">
-              <p class="about-lead">Entiendo toda la cadena: del servidor que sirve el sitio al pixel que ve el usuario.</p>
-              <p>Empecé en la trinchera de TI —servidores, redes y soporte— donde se aprende a resolver problemas de raíz, sin atajos. Ese fundamento lo llevé al desarrollo web.</p>
-              <p>Hoy construyo sitios rápidos, seguros y sin dependencias innecesarias, cuidando cada detalle del código al rendimiento. Me interesa entender por qué algo falla, no solo que se vea bien.</p>
+              <p class="about-lead">Empecé en la trinchera de TI —servidores, redes y soporte— donde se aprende a resolver problemas de raíz, sin atajos.</p>
+              <p class="about-follow">Ese fundamento lo llevé al desarrollo web. Hoy construyo sitios rápidos, seguros y sin dependencias innecesarias, cuidando cada detalle del código al rendimiento. Me interesa entender por qué algo falla, no solo que se vea bien.</p>
             </div>
             <ul class="fact-list reveal">
             <li><span class="label">Formación</span><span>Universidad Autónoma de Tamaulipas</span></li>
             <li><span class="label">Enfoque</span><span>Desarrollo web · TI y redes</span></li>
             <li><span class="label">Experiencia</span><span>Gestión + desarrollo</span></li>
-            <li><span class="label">Ubicación</span><span>San Nicolás de los Garza, NL · MX</span></li>
+            <li><span class="label">Ubicación</span><span>Nuevo León, México</span></li>
             </ul>
           </div>
+        </div>
+        <div class="about-foot reveal" aria-hidden="true">
+          <span class="ow-stripes"></span>
+          <p class="about-coords">"Nuevo León, México" — GMT-6 <span class="arrow">→</span></p>
         </div>
       </div>
     </section>
 
-    <!-- 03 · Skills -->
+    <!-- 03 · Skills — sección nocturna full-bleed (latido oscuro en la baraja) -->
     <section id="skills">
       <div class="index"><span>03</span></div>
+      <span class="skills-999" aria-hidden="true">STACK</span>
       <div class="content">
+        <p class="ow-kicker reveal">"Skills" — TRK&nbsp;03 <span class="arrow" aria-hidden="true">↓</span></p>
         <h2 class="reveal">Skills</h2>
         <p class="skills-intro reveal">Mi stack. Apunta (o toca) una tecnología para ver qué es y cómo la uso.</p>
-        <div class="constel reveal" data-constel>
+        <!-- Contenedor de la constelación (la noche la pone la sección) -->
+        <div class="constel-sky reveal">
+        <span class="constel-count" aria-hidden="true" data-cs-index>01&nbsp;/&nbsp;09</span>
+        <div class="constel" data-constel>
           <!-- Las líneas viven FUERA del plano 3D: el JS las redibuja hacia la
                posición proyectada real de cada nodo, así nunca se desconectan. -->
           <svg class="constel-lines" aria-hidden="true">
@@ -136,9 +143,10 @@
             <button type="button" class="constel-node" style="--x:16%; --y:72%; --z:4px" data-name="Google Fonts" data-desc="Tipografías web optimizadas para una carga rápida."><img src="assets/logos/googlefonts.svg" alt="Google Fonts" width="30" height="30" /><span class="constel-label">Google Fonts</span></button>
           </div>
         </div>
-        <div class="constel-info reveal">
+        <div class="constel-info">
           <h3 class="constel-name" data-cs-name>HTML5</h3>
           <p class="constel-desc" data-cs-desc>Estructura semántica de cada página. La base de todos mis sitios.</p>
+        </div>
         </div>
         <div class="skills-more reveal">
           <span class="skills-more-label">También trabajo con</span>
@@ -153,6 +161,7 @@
     <section id="proyectos">
       <div class="index"><span>04</span></div>
       <div class="content">
+        <p class="ow-kicker reveal">"Proyectos" — TRK&nbsp;04 <span class="arrow" aria-hidden="true">↓</span></p>
         <div class="proj-head reveal">
           <h2>Proyectos seleccionados</h2>
           <div class="proj-meta">
@@ -161,6 +170,7 @@
           </div>
         </div>
         <div class="proj-gallery reveal" data-drag>
+          <div class="plx" data-plx="20">
           <a class="proj-panel" data-tilt data-open="pdetail-portal" href="https://portal-n.vercel.app" target="_blank" rel="noopener">
             <span class="proj-num" aria-hidden="true">01</span>
             <div class="proj-media">
@@ -177,6 +187,8 @@
               <span class="proj-cta">Ver proyecto <span class="arrow">→</span></span>
             </div>
           </a>
+          </div>
+          <div class="plx" data-plx="-16">
           <a class="proj-panel" data-tilt data-open="pdetail-dreamer" href="https://cj-sreetwear.vercel.app/" target="_blank" rel="noopener">
             <span class="proj-num" aria-hidden="true">02</span>
             <div class="proj-media">
@@ -193,6 +205,7 @@
               <span class="proj-cta">Ver proyecto <span class="arrow">→</span></span>
             </div>
           </a>
+          </div>
           <a class="proj-panel proj-panel--more" href="https://github.com/Dre4merBoy" target="_blank" rel="noopener">
             <div class="proj-more-inner">
               <span class="proj-num" aria-hidden="true">→</span>
@@ -221,10 +234,13 @@
         <span class="pdetail-counter" data-shot-counter aria-hidden="true">01 / 04</span>
       </div>
       <div class="pdetail-shots" data-shots>
-        <figure class="pshot"><figcaption>Inicio</figcaption><img src="assets/shots/portal-home.png" alt="Portal DEV UAMM — página de inicio" width="1440" height="900" loading="lazy" /></figure>
-        <figure class="pshot"><figcaption>Nosotros</figcaption><img src="assets/shots/portal-nosotros.png" alt="Portal DEV UAMM — página Nosotros" width="1440" height="900" loading="lazy" /></figure>
-        <figure class="pshot"><figcaption>Eventos</figcaption><img src="assets/shots/portal-eventos.png" alt="Portal DEV UAMM — página Eventos" width="1440" height="900" loading="lazy" /></figure>
-        <figure class="pshot"><figcaption>Contacto</figcaption><img src="assets/shots/portal-contacto.png" alt="Portal DEV UAMM — página Contacto" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Inicio</figcaption><img src="assets/Sitio p/Portal n 1.png" alt="Portal DEV UAMM — página de inicio" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Nosotros</figcaption><img src="assets/Sitio p/Nostros.png" alt="Portal DEV UAMM — página Nosotros" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Eventos</figcaption><img src="assets/Sitio p/eventos.png" alt="Portal DEV UAMM — página Eventos" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Docentes</figcaption><img src="assets/Sitio p/Docentes.png" alt="Portal DEV UAMM — página Docentes" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Foro</figcaption><img src="assets/Sitio p/Foro.png" alt="Portal DEV UAMM — página Contacto" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Alumnos</figcaption><img src="assets/Sitio p/alumnos.png" alt="Portal DEV UAMM — página alumnos" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>contacto</figcaption><img src="assets/Sitio p/Contacto.png" alt="Portal DEV UAMM — página Contacto" width="1440" height="900" loading="lazy" /></figure>
       </div>
     </div>
 
@@ -243,9 +259,12 @@
         <span class="pdetail-counter" data-shot-counter aria-hidden="true">01 / 03</span>
       </div>
       <div class="pdetail-shots" data-shots>
-        <figure class="pshot"><figcaption>Inicio</figcaption><img src="assets/shots/dreamer-home.png" alt="Dreamer Club — página de inicio" width="1440" height="900" loading="lazy" /></figure>
-        <figure class="pshot"><figcaption>Colecciones</figcaption><img src="assets/shots/dreamer-colecciones.png" alt="Dreamer Club — página Colecciones" width="1440" height="900" loading="lazy" /></figure>
-        <figure class="pshot"><figcaption>ELIO</figcaption><img src="assets/shots/dreamer-elio.png" alt="Dreamer Club — página ELIO (línea deportiva)" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Modal</figcaption><img src="assets/Sitio cj/Modal.png" alt="Dreamer Club — página de inicio" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Inicio</figcaption><img src="assets/Sitio cj/Home.png" alt="Dreamer Club — página de inicio" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Colecciones</figcaption><img src="assets/Sitio cj/coleccion.png" alt="Dreamer Club — página Colecciones" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Colecciones</figcaption><img src="assets/Sitio cj/coleccion 1.png" alt="Dreamer Club — página Colecciones" width="1440" height="900" loading="lazy" /></figure>
+         <figure class="pshot"><figcaption>Compra</figcaption><img src="assets/Sitio cj/coleccion 2.png" alt="Dreamer Club — página Colecciones" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>ELIO</figcaption><img src="assets/Sitio cj/elio.png" alt="Dreamer Club — página ELIO (línea deportiva)" width="1440" height="900" loading="lazy" /></figure>
       </div>
     </div>
 
@@ -253,19 +272,28 @@
     <section id="contacto" class="contact">
       <div class="index"><span>05</span></div>
       <div class="content">
-        <h2 class="reveal">Contacto</h2>
-        <!-- La cinta ES el CTA: mailto gigante. El texto en movimiento va
-             aria-hidden; el aria-label da el nombre accesible del enlace. -->
-        <a class="marquee reveal" href="mailto:luisjuarezwrld@gmail.com" aria-label="Hablemos — escríbeme a luisjuarezwrld@gmail.com">
-          <div class="marquee-track" aria-hidden="true">
-            <span>Hablemos&nbsp;·&nbsp;Hablemos&nbsp;·&nbsp;Hablemos&nbsp;·&nbsp;Hablemos&nbsp;·&nbsp;</span>
-            <span>Hablemos&nbsp;·&nbsp;Hablemos&nbsp;·&nbsp;Hablemos&nbsp;·&nbsp;Hablemos&nbsp;·&nbsp;</span>
+        <p class="ow-kicker reveal">"Contacto" — TRK&nbsp;05 · FIN&nbsp;DE&nbsp;CINTA <span class="arrow" aria-hidden="true">↓</span></p>
+        <h2 class="reveal">¿Trabajamos juntos?</h2>
+        <!-- El CTA real: email visible y gigante + copiar al portapapeles
+             (mailto abre el cliente de correo; copiar es lo que un reclutador
+             en máquina corporativa de verdad necesita) -->
+        <div class="contact-cta reveal">
+          <a class="contact-mail" href="mailto:luisjuarezwrld@gmail.com">luisjuarezwrld@gmail.com&nbsp;<span class="arrow" aria-hidden="true">↗</span></a>
+          <button type="button" class="contact-copy" data-copy-mail="luisjuarezwrld@gmail.com"><span data-copy-label>Copiar email</span></button>
+        </div>
+        <ul class="contact-links reveal">
+          <li><a href="https://github.com/Dre4merBoy" target="_blank" rel="noopener">GitHub <span class="handle">@Dre4merBoy</span><span class="arrow" aria-hidden="true">↗</span></a></li>
+          <li><a href="https://www.linkedin.com/in/luis-edgar-contreras-ju%C3%A1rez-0a6a033b1/" target="_blank" rel="noopener">LinkedIn <span class="handle">Luis Edgar Contreras Juárez</span><span class="arrow" aria-hidden="true">↗</span></a></li>
+        </ul>
+        <!-- Cierre VHS: ticker con datos reales + rebobinar (vuelve arriba) -->
+        <div class="contact-foot reveal">
+          <div class="contact-ticker" aria-hidden="true">
+            <div class="ticker-track">
+              <span>Disponible para trabajar&nbsp;·&nbsp;Nuevo León, México&nbsp;·&nbsp;GMT-6&nbsp;·&nbsp;"Portafolio" ©2026&nbsp;·&nbsp;▶ PLAY&nbsp;·&nbsp;</span>
+              <span>Disponible para trabajar&nbsp;·&nbsp;Nuevo León, México&nbsp;·&nbsp;GMT-6&nbsp;·&nbsp;"Portafolio" ©2026&nbsp;·&nbsp;▶ PLAY&nbsp;·&nbsp;</span>
+            </div>
           </div>
-        </a>
-        <div class="social reveal">
-          <a href="https://github.com/Dre4merBoy" target="_blank" rel="noopener">GitHub</a>
-          <a href="https://www.linkedin.com/in/luis-edgar-contreras-ju%C3%A1rez-0a6a033b1/" target="_blank" rel="noopener">LinkedIn</a>
-          <a href="mailto:luisjuarezwrld@gmail.com">Email</a>
+          <a class="contact-rewind" href="#">◀◀&nbsp;Rebobinar al inicio</a>
         </div>
       </div>
     </section>
@@ -280,7 +308,7 @@
        si el CDN falla, main.js lo detecta y la página queda estática pero completa. -->
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
-  <!-- Three.js (UMD r128, expone THREE global) para el planeta 3D del hero -->
+  <!-- Three.js (UMD r128, expone THREE global) para la esfera de partículas del hero -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js" defer></script>
   <script src="js/planet.js" defer></script>
   <script src="js/main.js" defer></script>

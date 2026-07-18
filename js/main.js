@@ -153,19 +153,37 @@
 
     let tx = 0, ty = 0, cx = 0, cy = 0, raf = null;
 
+    /* Progreso de "dibujado" de las líneas (0→1). GSAP lo anima al entrar la
+       sección (initConstelDraw); solo sin GSAP nacen dibujadas. NO se gatea
+       con reduced-motion (regla del proyecto: acortar, no desactivar). */
+    const draw = { p: (!window.gsap || !window.ScrollTrigger) ? 1 : 0, repaint: null };
+    box._draw = draw;
+
     const paint = () => {
       const br = box.getBoundingClientRect();
       const pts = nodes.map((n) => {
         const r = n.getBoundingClientRect();
         return [r.left + r.width / 2 - br.left, r.top + r.height / 2 - br.top];
       });
+      const total = lines.length;
       lines.forEach((l, i) => {
         const a = pts[pairs[i][0]], b = pts[pairs[i][1]];
         if (!a || !b) return;
         l.setAttribute('x1', a[0].toFixed(1)); l.setAttribute('y1', a[1].toFixed(1));
         l.setAttribute('x2', b[0].toFixed(1)); l.setAttribute('y2', b[1].toFixed(1));
+        // trazado progresivo: cada línea se dibuja en su franja del progreso
+        // global (escalonado). El dasharray se recalcula porque la longitud
+        // cambia con la inclinación 3D del plano.
+        const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+        const p = Math.max(0, Math.min(1, (draw.p - (i / total) * 0.6) / 0.4));
+        l.setAttribute('stroke-dasharray', len.toFixed(1));
+        l.setAttribute('stroke-dashoffset', (len * (1 - p)).toFixed(1));
       });
     };
+
+    // El tween de dibujado repinta por su cuenta: con reduced-motion el bucle
+    // rAF de abajo no corre y las líneas se quedarían a medio trazar.
+    draw.repaint = paint;
 
     // Repintar al redimensionar: el bucle rAF puede estar detenido (fuera de
     // vista o pestaña en segundo plano) y las líneas quedarían desfasadas.
@@ -204,52 +222,98 @@
     paint(); // primer trazado inmediato
   }
 
-  /* ---- Constelación de skills: al apuntar un nodo, la info de abajo muestra
-     qué es y cómo lo uso. La selección se queda (no se resetea al salir). ---- */
+  /* ---- Constelación de skills: al apuntar un nodo, el titular del panel
+     muestra qué es y cómo lo uso (con índice 01/09). Además ROTA SOLA cada
+     3.2s mientras el panel está a la vista y el cursor no está encima: la
+     sección vive aunque el visitante no interactúe. ---- */
   function initConstel() {
     const nodes = [...document.querySelectorAll('.constel-node')];
     const nameEl = document.querySelector('[data-cs-name]');
     const descEl = document.querySelector('[data-cs-desc]');
+    const idxEl = document.querySelector('[data-cs-index]');
     if (!nodes.length || !nameEl || !descEl) return;
+    const pad = (n) => String(n).padStart(2, '0');
+    let current = 0;
     const show = (n) => {
+      current = nodes.indexOf(n);
       nodes.forEach((i) => i.classList.toggle('is-active', i === n));
       nameEl.textContent = n.dataset.name;
       descEl.textContent = n.dataset.desc;
+      if (idxEl) idxEl.textContent = pad(current + 1) + ' / ' + pad(nodes.length);
+      // micro-entrada del titular (solo si GSAP cargó; sin él, cambio seco)
+      if (window.gsap) {
+        gsap.fromTo([nameEl, descEl], { opacity: 0, y: 12 },
+          { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', stagger: 0.05, overwrite: 'auto' });
+      }
     };
     nodes.forEach((n) => {
       n.addEventListener('mouseover', () => show(n));
       n.addEventListener('focus', () => show(n));
       n.addEventListener('click', () => show(n)); // tap en móvil
     });
+
+    // Rotación automática: solo con el panel a la vista y sin cursor encima
+    const sky = document.querySelector('.constel-sky');
+    if (!sky) return;
+    let timer = null, inView = false, hovering = false;
+    const start = () => {
+      if (!timer && inView && !hovering) {
+        timer = setInterval(() => show(nodes[(current + 1) % nodes.length]), 3200);
+      }
+    };
+    const stop = () => { clearInterval(timer); timer = null; };
+    sky.addEventListener('pointerenter', () => { hovering = true; stop(); });
+    sky.addEventListener('pointerleave', () => { hovering = false; start(); });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { inView = e.isIntersecting; if (e.isIntersecting) start(); else stop(); });
+    }, { threshold: 0.25 });
+    io.observe(sky);
   }
 
-  /* ---- Modo oscuro: alterna y recuerda la elección ----
-     El tema inicial ya lo aplicó el script inline del <head> (sin destello);
-     aquí solo se maneja el botón y se guarda la preferencia. */
-  function initTheme() {
-    const root = document.documentElement;
-    const btn = document.querySelector('[data-theme-toggle]');
-    const apply = (t) => {
-      root.setAttribute('data-theme', t);
-      if (btn) btn.setAttribute('aria-label', t === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
-    };
-    // por si el script del head no corrió
-    if (!root.getAttribute('data-theme')) {
-      let guardado = null;
-      try { guardado = localStorage.getItem('tema'); } catch (_) {}
-      apply(guardado || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
-    } else {
-      apply(root.getAttribute('data-theme'));
-    }
+  /* ---- Copiar email (Contacto) ----
+     El mailto abre el cliente de correo (fricción en máquinas corporativas);
+     copiar al portapapeles es lo que un reclutador de verdad usa. Si no hay
+     Clipboard API (contexto no seguro), el botón se oculta y queda el mailto. */
+  function initCopyMail() {
+    const btn = document.querySelector('[data-copy-mail]');
     if (!btn) return;
+    if (!navigator.clipboard) { btn.hidden = true; return; }
+    const label = btn.querySelector('[data-copy-label]');
+    const original = label ? label.textContent : '';
+    let timer = null;
     btn.addEventListener('click', () => {
-      const nuevo = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      apply(nuevo);
-      try { localStorage.setItem('tema', nuevo); } catch (_) {}
+      navigator.clipboard.writeText(btn.getAttribute('data-copy-mail')).then(() => {
+        btn.classList.add('is-copied');
+        if (label) label.textContent = 'Copiado ✓';
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          btn.classList.remove('is-copied');
+          if (label) label.textContent = original;
+        }, 2000);
+      }).catch(() => {
+        // sin permiso de portapapeles: al menos abrir el correo
+        window.location.href = 'mailto:' + btn.getAttribute('data-copy-mail');
+      });
     });
   }
 
-  /* ---- Reloj + ubicación en vivo (hora de Monterrey) ---- */
+  /* ---- Cronómetro VHS del hero (● REC 00:00:00, tiempo de sesión) ----
+     setInterval (no rAF): sigue contando aunque la pestaña pierda foco. */
+  function initVhsTimer() {
+    const el = document.querySelector('[data-vhs-timer]');
+    if (!el) return;
+    const t0 = Date.now();
+    const pad = (n) => String(n).padStart(2, '0');
+    const tick = () => {
+      const s = Math.floor((Date.now() - t0) / 1000);
+      el.textContent = pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60);
+    };
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  /* ---- Reloj + ubicación en vivo (hora de Nuevo León; la TZ IANA se llama
+     America/Monterrey pero en pantalla solo se muestra estado y país) ---- */
   function initClock() {
     const el = document.querySelector('[data-clock]');
     if (!el) return;
@@ -259,7 +323,7 @@
         timeZone: 'America/Monterrey', hour: '2-digit', minute: '2-digit', hour12: false,
       });
     } catch (_) { fmt = new Intl.DateTimeFormat('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false }); }
-    const tick = () => { el.textContent = 'San Nicolás · ' + fmt.format(new Date()); };
+    const tick = () => { el.textContent = 'Nuevo León · ' + fmt.format(new Date()); };
     tick();
     setInterval(tick, 15000);
   }
@@ -393,7 +457,8 @@
   safe(initCursorHalo, 'cursorHalo');
   safe(initTilt, 'tilt');
   safe(initDragScroll, 'dragScroll');
-  safe(initTheme, 'theme');
+  safe(initCopyMail, 'copyMail');
+  safe(initVhsTimer, 'vhsTimer');
   safe(initHeroType, 'heroType');
   safe(initConstel, 'constel');
   safe(initConstel3D, 'constel3D');
@@ -404,6 +469,159 @@
   // --- A partir de aquí, mejoras que dependen de GSAP ---
   if (!window.gsap || !window.ScrollTrigger) return;
   gsap.registerPlugin(ScrollTrigger);
+  // En móvil, el redimensionado por la barra de URL no debe recalcular los pins
+  ScrollTrigger.config({ ignoreMobileResize: true });
+
+  /* Divide un elemento en palabras y caracteres (SplitText casero).
+     Cada palabra es una máscara (overflow hidden, CSS .split .w) y cada
+     carácter un inline-block animable. Se dividen los nodos de TEXTO
+     recursivamente, así los spans internos (p. ej. .accent) conservan su
+     estilo. Accesible: aria-label con el texto original en el elemento y
+     aria-hidden en las palabras. Solo corre si GSAP cargó: sin JS/CDN el
+     titular queda intacto. */
+  function splitLetters(el) {
+    const label = el.textContent;
+    const walk = (node) => {
+      [...node.childNodes].forEach((child) => {
+        if (child.nodeType === Node.TEXT_NODE) {
+          const frag = document.createDocumentFragment();
+          child.textContent.split(/(\s+)/).forEach((part) => {
+            if (!part) return;
+            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(' ')); return; }
+            const w = document.createElement('span');
+            w.className = 'w';
+            w.setAttribute('aria-hidden', 'true');
+            for (const ch of part) {
+              const c = document.createElement('span');
+              c.className = 'c';
+              c.textContent = ch;
+              w.appendChild(c);
+            }
+            frag.appendChild(w);
+          });
+          node.replaceChild(frag, child);
+        } else if (child.nodeType === Node.ELEMENT_NODE) {
+          walk(child);
+        }
+      });
+    };
+    el.setAttribute('aria-label', label.trim());
+    walk(el);
+    el.classList.add('split');
+    return el.querySelectorAll('.c');
+  }
+
+  /* Cortina en TODAS las secciones (referencia voyeurverite): cada sección
+     queda CLAVADA cuando termina de mostrarse y la siguiente se desliza por
+     encima como una carta de baraja. pinSpacing:false = sin hueco extra; el
+     "salto" del elemento al soltarse ocurre cuando ya está tapado del todo.
+     - Sección que cabe en pantalla (hero): se clava al tocar arriba.
+     - Sección MÁS ALTA que la pantalla: se clava al llegar su parte final
+       ('bottom bottom') — así recorres todo su contenido antes de congelarse.
+     - La última no se clava: nada la cubre.
+     El CSS da a las secciones fondo opaco y z-index 1 (el orden del DOM
+     decide quién tapa a quién). */
+  function initSectionStack() {
+    const secs = gsap.utils.toArray('main section');
+    secs.forEach((sec, i) => {
+      if (i === secs.length - 1) return;
+      ScrollTrigger.create({
+        trigger: sec,
+        start: () => (sec.offsetHeight <= window.innerHeight + 2 ? 'top top' : 'bottom bottom'),
+        end: 'bottom top',
+        pin: true,
+        pinSpacing: false,
+        anticipatePin: 1,
+      });
+    });
+    // La filigrana 999 deriva hacia arriba mientras la cortina sube: da
+    // sensación de profundidad entre capas (el hero no está "congelado")
+    gsap.to('.hero-999', {
+      yPercent: -28,
+      ease: 'none',
+      scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true },
+    });
+  }
+
+  /* Titulares de sección por caracteres: cada letra sube desde su máscara
+     al entrar la sección (una vez, no scrub: es un saludo, no un dial). */
+  function initSplitTitles() {
+    // 'h2.reveal' + el de Proyectos (vive dentro de .proj-head.reveal)
+    gsap.utils.toArray('h2.reveal, .proj-head h2').forEach((h) => {
+      const chars = splitLetters(h);
+      if (!chars.length) return;
+      gsap.from(chars, {
+        yPercent: 130,
+        duration: reduced ? 0.45 : 0.85,
+        ease: 'power4.out',
+        stagger: reduced ? 0.008 : 0.028,
+        scrollTrigger: { trigger: h, start: 'top 86%', once: true },
+      });
+    });
+  }
+
+  /* Parallax ligado al progreso del scroll (scrub): los wrappers .plx
+     derivan de +amp a -amp px mientras cruzan el viewport. Se anima el
+     WRAPPER, no el contenido: el transform inline de GSAP pisaría el del
+     tilt 3D (data-tilt). En el carrusel táctil de móvil se omite: las
+     tarjetas desalineadas verticalmente entorpecen el swipe. */
+  function initScrubParallax() {
+    const mobile = window.innerWidth <= 720;
+    document.querySelectorAll('.plx[data-plx]').forEach((el) => {
+      if (mobile && el.closest('.proj-gallery')) return;
+      const amp = parseFloat(el.getAttribute('data-plx'));
+      if (!amp) return;
+      gsap.fromTo(el, { y: amp }, {
+        y: -amp,
+        ease: 'none',
+        scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true },
+      });
+    });
+  }
+
+  /* La constelación "nace" al entrar: las líneas se trazan escalonadas
+     (initConstel3D expone box._draw y su paint() aplica el dasharray) y los
+     nodos encienden en cascada. En los nodos SOLO se anima opacity: su
+     transform (translate + translateZ) es del stylesheet y GSAP lo pisaría. */
+  function initConstelDraw() {
+    const box = document.querySelector('[data-constel]');
+    if (!box || !box._draw) return;
+    gsap.to(box._draw, {
+      p: 1,
+      duration: reduced ? 0.8 : 2,
+      ease: 'power2.inOut',
+      scrollTrigger: { trigger: '.constel-sky', start: 'top 78%', once: true },
+      onUpdate: () => { if (box._draw.repaint) box._draw.repaint(); },
+    });
+    gsap.from('.constel-node', {
+      opacity: 0,
+      duration: reduced ? 0.3 : 0.5,
+      stagger: reduced ? 0.02 : 0.07,
+      ease: 'power2.out',
+      scrollTrigger: { trigger: '.constel-sky', start: 'top 78%', once: true },
+    });
+    // red de seguridad: pase lo que pase, nada queda invisible
+    setTimeout(() => {
+      box._draw.p = 1;
+      if (box._draw.repaint) box._draw.repaint();
+      gsap.set('.constel-node', { opacity: 1 });
+    }, 8000);
+  }
+
+  /* Firma manuscrita de "Sobre mí": pop con rotación al revelarse la foto.
+     GSAP absorbe el rotate(-8deg) del stylesheet en su caché y termina ahí. */
+  function initAboutSign() {
+    const sign = document.querySelector('.about-sign');
+    if (!sign) return;
+    gsap.from(sign, {
+      opacity: 0,
+      scale: 0.5,
+      rotation: -26,
+      duration: reduced ? 0.4 : 0.9,
+      ease: 'back.out(2)',
+      scrollTrigger: { trigger: '.about-photo', start: 'top 75%', once: true },
+    });
+  }
 
   /* Nav vivo: marca la sección visible (indicador de estado). */
   function initScrollSpy() {
@@ -428,42 +646,50 @@
     });
   }
 
-  /* Hero: cascada fade + lift tras cargar las fuentes. */
+  /* Hero: cascada fade + lift tras cargar las fuentes. El h1 (declaración)
+     ya no entra en la cascada: se divide en caracteres y cada letra sube
+     desde su máscara — el reveal tipográfico de la referencia. */
   function initHero() {
-    const heroItems = gsap.utils.toArray('.hero .eyebrow, .hero h1, .hero p, .hero .status');
-    if (!heroItems.length) return;
+    const heroItems = gsap.utils.toArray('.hero .eyebrow, .hero p, .hero .status');
+    const statement = document.querySelector('.hero-statement');
+    const stChars = statement ? splitLetters(statement) : [];
+    if (!heroItems.length && !stChars.length) return;
     gsap.set(heroItems, { opacity: 0, y: 30 });
-    const play = () => gsap.to(heroItems, {
-      opacity: 1, y: 0,
-      duration: reduced ? 0.4 : 0.8,   // reducido = más corto, NO desactivado
-      ease: 'power3.out',
-      stagger: reduced ? 0.04 : 0.12,
-    });
+    // ocultas desde YA (no al llegar fonts.ready): sin esto habría un
+    // destello del titular completo antes de re-ocultarse para animar
+    if (stChars.length) gsap.set(stChars, { yPercent: 130 });
+    const play = () => {
+      gsap.to(heroItems, {
+        opacity: 1, y: 0,
+        duration: reduced ? 0.4 : 0.8,   // reducido = más corto, NO desactivado
+        ease: 'power3.out',
+        stagger: reduced ? 0.04 : 0.12,
+      });
+      if (stChars.length) gsap.to(stChars, {
+        yPercent: 0,
+        duration: reduced ? 0.5 : 1.05,
+        ease: 'power4.out',
+        stagger: reduced ? 0.01 : 0.04,
+        delay: 0.15,
+      });
+    };
     document.fonts && document.fonts.ready ? document.fonts.ready.then(play) : play();
 
     /* Red de seguridad: si el ticker no arrancó (pestaña oculta al cargar,
        fallo de GSAP), setTimeout —que corre sin rAF— revela el hero igual.
        El contenido nunca queda invisible por depender de una animación. */
     setTimeout(() => {
-      if (getComputedStyle(heroItems[0]).opacity === '0') {
+      if (heroItems.length && getComputedStyle(heroItems[0]).opacity === '0') {
         gsap.set(heroItems, { opacity: 1, y: 0 });
+        if (stChars.length) gsap.set(stChars, { yPercent: 0 });
       }
     }, 4000);
   }
 
-  /* Reveals por sección (siempre; solo se acortan con reduced-motion). */
+  /* Reveals por sección (siempre; solo se acortan con reduced-motion).
+     Los h2 ya no se animan aquí: los revela por caracteres initSplitTitles. */
   function initReveals() {
-    // Encabezados: revelado más marcado (suben desde abajo) — transición por sección
-    gsap.utils.toArray('h2.reveal').forEach((h) => {
-      gsap.from(h, {
-        yPercent: reduced ? 15 : 45,
-        opacity: 0,
-        duration: reduced ? 0.4 : 0.9,
-        ease: 'power3.out',
-        scrollTrigger: { trigger: h, start: 'top 88%', once: true },
-      });
-    });
-    // Resto de elementos (excluye los h2, ya animados arriba)
+    // Resto de elementos (excluye los h2, animados por caracteres)
     document.querySelectorAll('section').forEach((section) => {
       const items = section.querySelectorAll('.reveal:not(h2)');
       if (!items.length) return;
@@ -474,6 +700,9 @@
         ease: 'power2.out',
         stagger: reduced ? 0.04 : 0.1,
         scrollTrigger: { trigger: section, start: 'top 80%', once: true },
+        // al terminar, fuera el transform inline: si se queda, pisa el
+        // transform del stylesheet y mata el tilt 3D (p. ej. la foto)
+        clearProps: 'transform',
       });
     });
     // Red de seguridad: a los 6s revela lo que siga oculto sobre el fold
@@ -482,6 +711,12 @@
         if (getComputedStyle(el).opacity === '0' &&
             el.getBoundingClientRect().top < window.innerHeight) {
           gsap.set(el, { opacity: 1, y: 0, yPercent: 0 });
+        }
+      });
+      // también los caracteres de titulares divididos que queden a la vista
+      document.querySelectorAll('h2.split').forEach((h) => {
+        if (h.getBoundingClientRect().top < window.innerHeight) {
+          gsap.set(h.querySelectorAll('.c'), { yPercent: 0 });
         }
       });
     }, 6000);
@@ -503,7 +738,12 @@
 
   safe(initScrollSpy, 'scrollSpy');
   safe(initProgress, 'progress');
+  safe(initSectionStack, 'sectionStack');
   safe(initHero, 'hero');
+  safe(initSplitTitles, 'splitTitles');
+  safe(initConstelDraw, 'constelDraw');
+  safe(initAboutSign, 'aboutSign');
   safe(initReveals, 'reveals');
   safe(initHeroParallax, 'heroParallax');
+  safe(initScrubParallax, 'scrubParallax');
 })();
