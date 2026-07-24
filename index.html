@@ -107,7 +107,7 @@
                de GSAP pisaría al del tilt. -->
           <div class="plx" data-plx="30">
           <figure class="about-photo reveal" data-tilt>
-            <img src="assets/luis.webp" alt="Retrato de Luis Contreras" width="900" height="1120" loading="lazy" onerror="this.remove()" />
+            <img src="assets/luis.webp" alt="Retrato de Luis Contreras" width="900" height="1120" loading="lazy" />
             <span class="about-sign" aria-hidden="true">Luis</span>
             <span class="about-tag" aria-hidden="true">"Retrato" — MX</span>
           </figure>
@@ -373,10 +373,10 @@
 
   <!-- GSAP + ScrollTrigger (CDN, versión fijada). Los defer se ejecutan en orden:
        si el CDN falla, main.js lo detecta y la página queda estática pero completa. -->
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" integrity="sha384-HOvlOYPIs/zjoIkWUGXkVmXsjr8GuZLV+Q+rcPwmJOVZVpvTSXQChiN4t9Euv9Vc" crossorigin="anonymous" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" integrity="sha384-P8VzCVnT9NBUkMrpcIZrJbA7EBjJvh/fJS6PmP+4nLIM284DtsImIv8D0fFjIkeh" crossorigin="anonymous" defer></script>
   <!-- Three.js (UMD r128, expone THREE global) para la esfera de partículas del hero -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous" defer></script>
   <script src="js/planet.js" defer></script>
   <script src="js/main.js" defer></script>
 
