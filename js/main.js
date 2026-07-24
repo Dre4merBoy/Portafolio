@@ -522,6 +522,9 @@
      El CSS da a las secciones fondo opaco y z-index 1 (el orden del DOM
      decide quién tapa a quién). */
   function initSectionStack() {
+    // Con prefers-reduced-motion NO se clavan las secciones: la cortina
+    // (pin + apilado) es justo el efecto que marea; se deja el scroll normal.
+    if (reduced) return;
     const secs = gsap.utils.toArray('main section');
     secs.forEach((sec, i) => {
       if (i === secs.length - 1) return;

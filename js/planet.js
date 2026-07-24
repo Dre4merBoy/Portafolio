@@ -269,6 +269,7 @@
   let heroVisible = true;
   let ticking = false;
   function setRunning() {
+    if (reduced) return; // prefers-reduced-motion: sin bucle, esfera estática
     if (tabVisible && heroVisible && !ticking) { ticking = true; requestAnimationFrame(loop); }
   }
   document.addEventListener('visibilitychange', () => { tabVisible = !document.hidden; setRunning(); });
@@ -300,6 +301,8 @@
     renderer.render(scene, camera);
     requestAnimationFrame(loop);
   }
+  // Con reduced-motion: un solo cuadro estático, sin arrancar el bucle.
+  if (reduced) renderer.render(scene, camera);
   setRunning();
 
   window.addEventListener('resize', () => {
@@ -307,5 +310,6 @@
     camera.aspect = w / h; camera.updateProjectionMatrix();
     renderer.setSize(w, h, false);
     fit();
+    if (reduced) renderer.render(scene, camera); // re-pinta el cuadro estático
   }, { passive: true });
 })();
