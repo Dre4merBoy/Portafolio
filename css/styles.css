@@ -1446,6 +1446,10 @@ footer {
   /* izquierda = riel (48px) + padding de contenido (20px) */
   footer { padding: 16px 20px 16px 68px; }
   .index span { font-size: 26px; top: 72px; }
+  /* En móvil el 01 del hero se encima al 999 (misma esquina): se oculta; el
+     999 ya hace de número gigante. OJO: visibility (no display:none) — .index
+     es la primera columna del grid y quitarla colapsaría el layout. */
+  .hero .index { visibility: hidden; }
   /* En móvil el handle de las filas de contacto se apila bajo el nombre */
   .contact-links a { flex-wrap: wrap; }
   .contact-links .handle { margin-left: 0; width: 100%; order: 3; }
