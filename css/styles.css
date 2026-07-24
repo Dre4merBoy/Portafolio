@@ -486,7 +486,7 @@ h1 .accent { color: var(--accent-bright); }
   z-index: -1;
   font-family: var(--display);
   font-weight: 700;
-  font-size: clamp(120px, 22vw, 320px);
+  font-size: clamp(88px, 16vw, 240px);
   line-height: 0.8;
   letter-spacing: -0.04em;
   color: transparent;
