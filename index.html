@@ -4,13 +4,35 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Luis Contreras — Desarrollador Web · Soporte TI y Redes</title>
-  <meta name="description" content="Portafolio de Luis Contreras, desarrollador web y soporte TI en Nuevo León, México. Proyectos: Portal DEV UAMM y SALMAS by CJ." />
+  <meta name="description" content="Portafolio de Luis Contreras, desarrollador web y soporte TI en Nuevo León, México. Proyectos: Portal DEV UAMM, Dreamer Club y RACHA." />
   <meta name="author" content="Luis Edgar Contreras Juárez" />
+  <meta name="theme-color" content="#070609" />
 
-  <!-- Open Graph (se completa en Fase 5: imagen, url) -->
+  <!-- IMPORTANTE: reemplaza https://TU-DOMINIO.com por la URL real antes de publicar -->
+  <link rel="canonical" href="https://TU-DOMINIO.com/" />
+
+  <!-- Favicon: SVG nítido a cualquier tamaño + PNG de respaldo -->
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+
+  <!-- Open Graph -->
   <meta property="og:type" content="website" />
+  <meta property="og:locale" content="es_MX" />
+  <meta property="og:site_name" content="Luis Contreras — Portafolio" />
   <meta property="og:title" content="Luis Contreras — Desarrollador Web · Soporte TI y Redes" />
-  <meta property="og:description" content="Portafolio personal. Proyectos: Portal DEV UAMM y SALMAS by CJ." />
+  <meta property="og:description" content="Portafolio de Luis Contreras. Proyectos: Portal DEV UAMM, Dreamer Club y RACHA." />
+  <meta property="og:url" content="https://TU-DOMINIO.com/" />
+  <meta property="og:image" content="https://TU-DOMINIO.com/assets/og.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Luis Contreras — Desarrollador Web · Soporte TI y Redes" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Luis Contreras — Desarrollador Web · Soporte TI y Redes" />
+  <meta name="twitter:description" content="Portafolio de Luis Contreras. Proyectos: Portal DEV UAMM, Dreamer Club y RACHA." />
+  <meta name="twitter:image" content="https://TU-DOMINIO.com/assets/og.jpg" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -86,7 +108,7 @@
                de GSAP pisaría al del tilt. -->
           <div class="plx" data-plx="30">
           <figure class="about-photo reveal" data-tilt>
-            <img src="assets/luis.jpg" alt="Retrato de Luis Contreras" width="900" height="1120" loading="lazy" onerror="this.remove()" />
+            <img src="assets/luis.webp" alt="Retrato de Luis Contreras" width="900" height="1120" loading="lazy" onerror="this.remove()" />
             <span class="about-sign" aria-hidden="true">Luis</span>
             <span class="about-tag" aria-hidden="true">"Retrato" — MX</span>
           </figure>
@@ -165,7 +187,7 @@
         <div class="proj-head reveal">
           <h2>Proyectos seleccionados</h2>
           <div class="proj-meta">
-            <span class="proj-counter" data-proj-counter aria-hidden="true">01&nbsp;/&nbsp;03</span>
+            <span class="proj-counter" data-proj-counter aria-hidden="true">01&nbsp;/&nbsp;04</span>
             <span class="proj-hint">Arrastra <span class="arrow">→</span></span>
           </div>
         </div>
@@ -174,7 +196,7 @@
           <a class="proj-panel" data-tilt data-open="pdetail-portal" href="https://portal-n.vercel.app" target="_blank" rel="noopener">
             <span class="proj-num" aria-hidden="true">01</span>
             <div class="proj-media">
-              <img src="assets/portal-dev-uamm.png" alt="Portada del Portal DEV UAMM: hero oscuro con el titular «Aprende tecnología con práctica real»" width="1280" height="800" loading="lazy" />
+              <img src="assets/portal-dev-uamm.webp" alt="Portada del Portal DEV UAMM: hero oscuro con el titular «Aprende tecnología con práctica real»" width="1280" height="800" loading="lazy" />
             </div>
             <div class="proj-info">
               <h3 class="proj-title">Portal DEV UAMM</h3>
@@ -192,7 +214,7 @@
           <a class="proj-panel" data-tilt data-open="pdetail-dreamer" href="https://cj-sreetwear.vercel.app/" target="_blank" rel="noopener">
             <span class="proj-num" aria-hidden="true">02</span>
             <div class="proj-media">
-              <img src="assets/salmas-by-cj.png" alt="Portada de SALMAS by CJ: camiseta Dreamer Club sobre un paisaje desértico al atardecer" width="1280" height="800" loading="lazy" />
+              <img src="assets/salmas-by-cj.webp" alt="Portada de SALMAS by CJ: camiseta Dreamer Club sobre un paisaje desértico al atardecer" width="1280" height="800" loading="lazy" />
             </div>
             <div class="proj-info">
               <h3 class="proj-title">Dreamer Club</h3>
@@ -203,6 +225,25 @@
               </dl>
               <p class="proj-desc">Marca de streetwear con seis colecciones, club de miembros y contacto directo. Loader, animaciones reveal y atención especial a la seguridad.</p>
               <span class="proj-cta">Ver proyecto <span class="arrow">→</span></span>
+            </div>
+          </a>
+          </div>
+          <div class="plx" data-plx="24">
+          <a class="proj-panel" data-tilt data-open="pdetail-racha" href="https://github.com/Dre4merBoy/Gym" target="_blank" rel="noopener">
+            <span class="proj-num" aria-hidden="true">03</span>
+            <span class="proj-badge" aria-hidden="true"><span class="badge-dot"></span>En construcción</span>
+            <div class="proj-media proj-media--app">
+              <img src="assets/racha/home.webp" alt="Pantalla de inicio de la app RACHA: mascota, racha de 47 días y rutina del día" width="390" height="820" loading="lazy" />
+            </div>
+            <div class="proj-info">
+              <h3 class="proj-title">RACHA.</h3>
+              <dl class="proj-fields">
+                <div class="proj-field"><dt>Tipo.</dt><dd>App móvil de gimnasio · En desarrollo</dd></div>
+                <div class="proj-field"><dt>Stack.</dt><dd>React Native · Expo · SQLite (offline)</dd></div>
+                <div class="proj-field"><dt>Rol.</dt><dd>Diseño y desarrollo</dd></div>
+              </dl>
+              <p class="proj-desc">App de gimnasio con gamificación: registras series y convierte el esfuerzo en racha diaria, maestría por ejercicio y una mascota que evoluciona. Funciona 100% sin internet.</p>
+              <span class="proj-cta">Ver mockups <span class="arrow">→</span></span>
             </div>
           </a>
           </div>
@@ -234,13 +275,13 @@
         <span class="pdetail-counter" data-shot-counter aria-hidden="true">01 / 04</span>
       </div>
       <div class="pdetail-shots" data-shots>
-        <figure class="pshot"><figcaption>Inicio</figcaption><img src="assets/Sitio p/Portal n 1.png" alt="Portal DEV UAMM — página de inicio" width="1440" height="900" loading="lazy" /></figure>
-        <figure class="pshot"><figcaption>Nosotros</figcaption><img src="assets/Sitio p/Nostros.png" alt="Portal DEV UAMM — página Nosotros" width="1440" height="900" loading="lazy" /></figure>
-        <figure class="pshot"><figcaption>Eventos</figcaption><img src="assets/Sitio p/eventos.png" alt="Portal DEV UAMM — página Eventos" width="1440" height="900" loading="lazy" /></figure>
-        <figure class="pshot"><figcaption>Docentes</figcaption><img src="assets/Sitio p/Docentes.png" alt="Portal DEV UAMM — página Docentes" width="1440" height="900" loading="lazy" /></figure>
-        <figure class="pshot"><figcaption>Foro</figcaption><img src="assets/Sitio p/Foro.png" alt="Portal DEV UAMM — página Contacto" width="1440" height="900" loading="lazy" /></figure>
-        <figure class="pshot"><figcaption>Alumnos</figcaption><img src="assets/Sitio p/alumnos.png" alt="Portal DEV UAMM — página alumnos" width="1440" height="900" loading="lazy" /></figure>
-        <figure class="pshot"><figcaption>contacto</figcaption><img src="assets/Sitio p/Contacto.png" alt="Portal DEV UAMM — página Contacto" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Inicio</figcaption><img src="assets/Sitio p/Portal n 1.webp" alt="Portal DEV UAMM — página de inicio" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Nosotros</figcaption><img src="assets/Sitio p/Nostros.webp" alt="Portal DEV UAMM — página Nosotros" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Eventos</figcaption><img src="assets/Sitio p/eventos.webp" alt="Portal DEV UAMM — página Eventos" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Docentes</figcaption><img src="assets/Sitio p/Docentes.webp" alt="Portal DEV UAMM — página Docentes" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Foro</figcaption><img src="assets/Sitio p/Foro.webp" alt="Portal DEV UAMM — página Contacto" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Alumnos</figcaption><img src="assets/Sitio p/alumnos.webp" alt="Portal DEV UAMM — página alumnos" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>contacto</figcaption><img src="assets/Sitio p/Contacto.webp" alt="Portal DEV UAMM — página Contacto" width="1440" height="900" loading="lazy" /></figure>
       </div>
     </div>
 
@@ -259,12 +300,39 @@
         <span class="pdetail-counter" data-shot-counter aria-hidden="true">01 / 03</span>
       </div>
       <div class="pdetail-shots" data-shots>
-        <figure class="pshot"><figcaption>Modal</figcaption><img src="assets/Sitio cj/Modal.png" alt="Dreamer Club — página de inicio" width="1440" height="900" loading="lazy" /></figure>
-        <figure class="pshot"><figcaption>Inicio</figcaption><img src="assets/Sitio cj/Home.png" alt="Dreamer Club — página de inicio" width="1440" height="900" loading="lazy" /></figure>
-        <figure class="pshot"><figcaption>Colecciones</figcaption><img src="assets/Sitio cj/coleccion.png" alt="Dreamer Club — página Colecciones" width="1440" height="900" loading="lazy" /></figure>
-        <figure class="pshot"><figcaption>Colecciones</figcaption><img src="assets/Sitio cj/coleccion 1.png" alt="Dreamer Club — página Colecciones" width="1440" height="900" loading="lazy" /></figure>
-         <figure class="pshot"><figcaption>Compra</figcaption><img src="assets/Sitio cj/coleccion 2.png" alt="Dreamer Club — página Colecciones" width="1440" height="900" loading="lazy" /></figure>
-        <figure class="pshot"><figcaption>ELIO</figcaption><img src="assets/Sitio cj/elio.png" alt="Dreamer Club — página ELIO (línea deportiva)" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Modal</figcaption><img src="assets/Sitio cj/Modal.webp" alt="Dreamer Club — página de inicio" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Inicio</figcaption><img src="assets/Sitio cj/Home.webp" alt="Dreamer Club — página de inicio" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Colecciones</figcaption><img src="assets/Sitio cj/coleccion.webp" alt="Dreamer Club — página Colecciones" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Colecciones</figcaption><img src="assets/Sitio cj/coleccion 1.webp" alt="Dreamer Club — página Colecciones" width="1440" height="900" loading="lazy" /></figure>
+         <figure class="pshot"><figcaption>Compra</figcaption><img src="assets/Sitio cj/coleccion 2.webp" alt="Dreamer Club — página Colecciones" width="1440" height="900" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>ELIO</figcaption><img src="assets/Sitio cj/elio.webp" alt="Dreamer Club — página ELIO (línea deportiva)" width="1440" height="900" loading="lazy" /></figure>
+      </div>
+    </div>
+
+    <div class="pdetail" id="pdetail-racha" role="dialog" aria-modal="true" aria-label="RACHA — capturas de la app" hidden>
+      <div class="pdetail-info">
+        <button class="pdetail-close" type="button" data-close aria-label="Cerrar detalle">✕&nbsp;&nbsp;Cerrar</button>
+        <span class="pdetail-kicker">Proyecto 03 · En desarrollo</span>
+        <h2 class="pdetail-title">RACHA.</h2>
+        <p class="pdetail-desc">App móvil de gimnasio con gamificación: registras tus series y la app convierte el esfuerzo en racha diaria, maestría por ejercicio y una mascota que evoluciona. Funciona 100% sin internet — todo vive en SQLite en el dispositivo.</p>
+        <dl class="pdetail-fields">
+          <div><dt>Rol.</dt><dd>Diseño y desarrollo</dd></div>
+          <div><dt>Tipo.</dt><dd>App móvil · Gimnasio</dd></div>
+          <div><dt>Stack.</dt><dd>React Native · Expo · expo-router · SQLite</dd></div>
+          <div><dt>Estado.</dt><dd>En desarrollo · vertical slices</dd></div>
+        </dl>
+        <a class="pdetail-visit" href="https://github.com/Dre4merBoy/Gym" target="_blank" rel="noopener">Ver repositorio <span class="arrow">→</span></a>
+        <span class="pdetail-counter" data-shot-counter aria-hidden="true">01 / 08</span>
+      </div>
+      <div class="pdetail-shots pdetail-shots--phones" data-shots>
+        <figure class="pshot"><figcaption>Bienvenida</figcaption><img src="assets/racha/login.webp" alt="RACHA — pantalla de bienvenida con logo y mascota" width="390" height="820" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Inicio</figcaption><img src="assets/racha/home.webp" alt="RACHA — inicio con mascota, racha y rutina del día" width="390" height="820" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Racha</figcaption><img src="assets/racha/racha.webp" alt="RACHA — calendario de racha de 47 días consecutivos" width="390" height="820" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Maestría</figcaption><img src="assets/racha/maestria.webp" alt="RACHA — maestría de un ejercicio: nivel, XP y récords" width="390" height="820" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Perfil</figcaption><img src="assets/racha/perfil.webp" alt="RACHA — perfil con mascota y estadísticas" width="390" height="820" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Ejercicios</figcaption><img src="assets/racha/ejercicios.webp" alt="RACHA — biblioteca de ejercicios" width="390" height="820" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Rutinas</figcaption><img src="assets/racha/rutinas.webp" alt="RACHA — lista de rutinas" width="390" height="820" loading="lazy" /></figure>
+        <figure class="pshot"><figcaption>Crear rutina</figcaption><img src="assets/racha/crear-rutina.webp" alt="RACHA — constructor de rutina con selector de ejercicios" width="390" height="820" loading="lazy" /></figure>
       </div>
     </div>
 

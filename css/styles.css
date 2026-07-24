@@ -1315,6 +1315,56 @@ main section#skills {
   box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6);
 }
 
+/* Tarjeta de app (RACHA): capturas verticales de teléfono, no landscape.
+   El media muestra el teléfono completo (contain) sobre fondo oscuro. */
+.proj-media--app { background: #0c0b0f; display: grid; place-items: center; }
+.proj-media--app img {
+  width: auto;
+  height: 108%;            /* asoma un poco por arriba/abajo, look "device" */
+  object-fit: contain;
+  filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.5));
+}
+/* Badge "En construcción" en la esquina del panel */
+.proj-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 5px 10px;
+}
+.proj-badge .badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-bright);
+  box-shadow: 0 0 8px var(--accent-bright);
+}
+
+/* Modal de app: capturas de teléfono en rejilla en vez de columna landscape */
+.pdetail-shots--phones {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: center;
+  gap: var(--space-8);
+}
+.pdetail-shots--phones .pshot {
+  flex: 0 0 clamp(200px, 22vw, 270px);
+  text-align: center;
+}
+
 /* ---------- Footer ---------- */
 footer {
   display: flex;

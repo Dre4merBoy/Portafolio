@@ -262,15 +262,25 @@
     }, { passive: true });
   }
 
-  /* --- Loop (pausado si la pestaña no es visible) --- */
-  let running = true;
-  document.addEventListener('visibilitychange', () => {
-    running = !document.hidden;
-    if (running) requestAnimationFrame(loop);
-  });
+  /* --- Loop: solo corre con la pestaña visible Y el hero en pantalla ---
+     (al hacer scroll a las otras secciones el canvas queda fuera de vista:
+     pausar ahí ahorra GPU/batería y evita repintar algo que no se ve). */
+  let tabVisible = !document.hidden;
+  let heroVisible = true;
+  let ticking = false;
+  function setRunning() {
+    if (tabVisible && heroVisible && !ticking) { ticking = true; requestAnimationFrame(loop); }
+  }
+  document.addEventListener('visibilitychange', () => { tabVisible = !document.hidden; setRunning(); });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((entries) => {
+      heroVisible = entries[0].isIntersecting;
+      setRunning();
+    }, { rootMargin: '120px' }).observe(host);
+  }
 
   function loop() {
-    if (!running) return;
+    if (!tabVisible || !heroVisible) { ticking = false; return; }
     const t = performance.now() * 0.001;
     mat.uniforms.uTime.value = t;
     // giro continuo; el cursor a la derecha lo acelera un poco (y viceversa)
@@ -290,7 +300,7 @@
     renderer.render(scene, camera);
     requestAnimationFrame(loop);
   }
-  requestAnimationFrame(loop);
+  setRunning();
 
   window.addEventListener('resize', () => {
     const s = size(); w = s.w; h = s.h;

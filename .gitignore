@@ -10,5 +10,8 @@ desktop.ini
 .vscode/
 .idea/
 
+# Config local de Claude Code (no forma parte del sitio)
+.claude/
+
 # Logs
 *.log
