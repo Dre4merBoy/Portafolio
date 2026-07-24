@@ -1452,6 +1452,17 @@ footer {
   /* En móvil el meta industrial estorba junto al nav; el 999 se ancla más arriba */
   .hero-meta { display: none; }
   .hero-999 { top: 9vh; left: 6vw; }
+  /* Móvil: el texto se superpone al planeta (composición única, no apilada).
+     Un velo degradado detrás del bloque lo mantiene legible sobre las partículas. */
+  .hero .content { position: relative; z-index: 1; align-self: end; padding-bottom: var(--space-12); }
+  .hero .content::before {
+    content: "";
+    position: absolute;
+    inset: -9vh -20px calc(-1 * var(--space-12)) -20px;
+    background: linear-gradient(to top, rgba(7, 6, 9, 0.92) 32%, rgba(7, 6, 9, 0.55) 64%, transparent);
+    z-index: -1;
+    pointer-events: none;
+  }
   .vhs-rec { left: 68px; } /* riel 48px + padding 20px */
   .about-photo { max-width: 280px; }
   /* Constelación compacta en móvil: nodos más chicos y sin etiquetas (se encimarían) */

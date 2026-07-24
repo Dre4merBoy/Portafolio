@@ -61,14 +61,14 @@
     const mobileNow = window.innerWidth < 900;
     const visH = 2 * camera.position.z * Math.tan((camera.fov * Math.PI) / 360);
     const visW = visH * (w / h);
-    // En móvil la esfera es más chica (margen mayor) y baja hacia el bloque de
-    // texto: así se lee como una sola composición, no esfera-arriba / texto-abajo.
-    const margin = R * (mobileNow ? 1.5 : 1.24);
+    // En móvil la esfera es un BACKDROP grande y centrado: llena el medio para
+    // que el 999 (arriba) y el texto (abajo) la solapen — una sola composición.
+    const margin = R * (mobileNow ? 0.92 : 1.24);
     const s = Math.min(1, Math.max(0.4, (Math.min(visW, visH) / 2) / margin));
     group.scale.setScalar(s);
     const m = margin * s;
     let px = mobileNow ? 0 : 1.6;
-    let py = mobileNow ? 0.35 : 0.55;
+    let py = mobileNow ? -0.1 : 0.55;
     px = Math.sign(px || 1) * Math.min(Math.abs(px), Math.max(0, visW / 2 - m));
     py = Math.sign(py || 1) * Math.min(Math.abs(py), Math.max(0, visH / 2 - m));
     group.position.set(px, py, 0);
