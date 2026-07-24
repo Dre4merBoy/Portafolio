@@ -451,7 +451,27 @@
     });
   }
 
+  /* ---- Enlace/botón Home (logo LC + "Rebobinar"): vuelve al inicio con
+     scroll suave CONTROLADO. El salto instantáneo de href="#" desincronizaba
+     los pins de ScrollTrigger en algunos móviles → el hero quedaba en blanco
+     (sin texto ni planeta). El scroll suave emite eventos de scroll y mantiene
+     a ScrollTrigger en sync; al llegar arriba refresca y re-pinta el planeta. */
+  function initHome() {
+    const homes = document.querySelectorAll('[data-home]');
+    if (!homes.length) return;
+    const go = (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+      window.setTimeout(() => {
+        if (window.ScrollTrigger) ScrollTrigger.refresh();
+        window.dispatchEvent(new Event('resize')); // re-encuadra y re-pinta el planeta
+      }, reduced ? 60 : 700);
+    };
+    homes.forEach((el) => el.addEventListener('click', go));
+  }
+
   // --- Estas corren siempre (no dependen de GSAP) ---
+  safe(initHome, 'home');
   safe(initNavOverHero, 'navOverHero');
   safe(initProjectDetail, 'projectDetail');
   safe(initCursorHalo, 'cursorHalo');
